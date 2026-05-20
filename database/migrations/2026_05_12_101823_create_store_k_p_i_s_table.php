@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('store_k_p_i_s', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        Schema::create('kpis', function (Blueprint $table) {
+    $table->id();
+    $table->string('type'); // MTN, SMS, STORE
+    $table->string('category'); // Sales / General
+    $table->string('name');
+    $table->decimal('target', 10, 2);
+    $table->decimal('weight', 5, 2)->default(1);
+    $table->string('store')->nullable();
+    $table->date('period');
+    $table->timestamps();
+});
     }
 
     /**

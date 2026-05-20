@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KPIController;
 use App\Http\Controllers\EmployeeKPIController;
@@ -8,7 +9,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', function () {
-    return view('welcome');
+    // If there are no users yet, send the visitor to registration.
+    // If users exist, send to the login page.
+    if (User::count() === 0) {
+        return redirect()->route('register');
+    }
+
+    return redirect()->route('login');
 });
 
 /*
@@ -36,7 +43,17 @@ Route::get('/register', [RegisterController::class, 'showRegisterForm'])
     ->name('register');
 
 Route::post('/register-store', [RegisterController::class, 'register'])
-    ->name('registerStore');
+    ->name('register.store');
+
+/*
+|--------------------------------------------------------------------------
+| Password Reset Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->name('password.request');
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +69,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('kpis', KPIController::class);
 
     Route::resource('employee-kpis', EmployeeKPIController::class);
+
+    Route::middleware(['role:Super Admin'])->group(function () {
+        Route::get('/admin/dashboard', [DashboardController::class, 'admin'])
+            ->name('admin.dashboard');
+    });
 });

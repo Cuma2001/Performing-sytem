@@ -11,16 +11,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalUsers = User::count();
-        $totalStores = Store::count();
-        $totalKpis = KPI::count();
-        $employeeKpis = EmployeeKPI::count();
+        $user = auth()->user();
 
-        return view('dashboard', compact(
-            'totalUsers',
-            'totalStores',
-            'totalKpis',
-            'employeeKpis'
-        ));
+        $kpis = EmployeeKPI::where('user_id', $user->id)->get();
+
+        $avgScore = $kpis->avg('score');
+
+        $salesScore = $avgScore * 0.8;
+        $generalScore = $avgScore * 0.2;
+
+        $finalScore = $salesScore + $generalScore;
+
+        return view('dashboard', compact('kpis','finalScore'));
     }
 }
