@@ -26,6 +26,8 @@ Route::post('/login-store', [LoginController::class, 'login'])
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Register Routes

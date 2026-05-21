@@ -3,7 +3,7 @@
 
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
-    <title>Login - Asset Management</title>
+    <title>Login - Performance Management System</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -194,13 +194,13 @@
 
                     </div>
                    <div class="text-center p-t-12">
-                        <a class="txt2" href="{{route('password.request')}}">
+                        <a class="txt2" href="">
                             Forgot Password?
                         </a>
                         <span class="txt1">
                             |
                         </span>
-                        <a class="txt2" href="{{route('registerUser')}}">
+                        <a class="txt2" href="">
                             Register?
                         </a>
                     </div>
