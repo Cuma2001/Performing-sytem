@@ -1,77 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Models\User;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\KPIController;
-use App\Http\Controllers\EmployeeKPIController;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    // If there are no users yet, send the visitor to registration.
-    // If users exist, send to the login page.
-    if (User::count() === 0) {
-        return redirect()->route('register');
-    }
-
-    return redirect()->route('login');
+    return view('welcome');
 });
 
-/*
-|--------------------------------------------------------------------------
-| Login Routes
-|--------------------------------------------------------------------------
-*/
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-Route::get('/login', [LoginController::class, 'showLoginForm'])
-    ->name('login');
-
-Route::post('/login-store', [LoginController::class, 'login'])
-    ->name('loginStore');
-
-Route::post('/logout', [LoginController::class, 'logout'])
-    ->name('logout');
-
-/*
-|--------------------------------------------------------------------------
-| Register Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/register', [RegisterController::class, 'showRegisterForm'])
-    ->name('register');
-
-Route::post('/register-store', [RegisterController::class, 'register'])
-    ->name('register.store');
-
-/*
-|--------------------------------------------------------------------------
-| Password Reset Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/forgot-password', function () {
-    return view('auth.forgot-password');
-})->name('password.request');
-
-/*
-|--------------------------------------------------------------------------
-| Protected Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
-
-    Route::resource('kpis', KPIController::class);
-
-    Route::resource('employee-kpis', EmployeeKPIController::class);
-
-    Route::middleware(['role:Super Admin'])->group(function () {
-        Route::get('/admin/dashboard', [DashboardController::class, 'admin'])
-            ->name('admin.dashboard');
-    });
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';
