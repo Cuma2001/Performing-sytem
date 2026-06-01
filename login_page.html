@@ -5,14 +5,13 @@
     <title>Login - Perfomance Management System</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}" />
+    <link rel="icon" type="image/png" href="http://127.0.0.1:8000/favicon.ico" />
 
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <!-- Vite compiled assets (includes Tailwind + auth.css) -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+    <link rel="preload" as="style" href="http://127.0.0.1:8000/build/assets/app-5ZqG7HQu.css" /><link rel="modulepreload" as="script" href="http://127.0.0.1:8000/build/assets/app-BjMeHjpC.js" /><link rel="stylesheet" href="http://127.0.0.1:8000/build/assets/app-5ZqG7HQu.css" /><script type="module" src="http://127.0.0.1:8000/build/assets/app-BjMeHjpC.js"></script>
     <meta name="robots" content="noindex, follow">
 </head>
 <body>
@@ -26,33 +25,17 @@
         <div class="container-login100">
             <div class="wrap-login100">
                 <div class="login100-pic js-tilt" data-tilt>
-                    <img src="{{asset('assets/images/img-01.png')}}" alt="IMG">
+                    <img src="http://127.0.0.1:8000/assets/images/img-01.png" alt="IMG">
                 </div>
-                <form class="login100-form validate-form" id ="loginForm" action="{{ route('loginStore') }}"  method="post">
-                @csrf <!-- {{ csrf_field() }} -->
+                <form class="login100-form validate-form" id ="loginForm" action="http://127.0.0.1:8000/loginStore"  method="post">
+                <input type="hidden" name="_token" value="9rrQGQCx2XXqmSC275d9rfr6ccCyCiKu84hN2GYd" autocomplete="off"> <!-- <input type="hidden" name="_token" value="9rrQGQCx2XXqmSC275d9rfr6ccCyCiKu84hN2GYd" autocomplete="off"> -->
                 <div class="login100-pic js-tilt" data-tilt>
-                        <img style="width: 300px" src="{{asset('images/logo3.png')}}" alt="IMG">
+                        <img style="width: 300px" src="http://127.0.0.1:8000/images/logo3.png" alt="IMG">
                     </div>
                     <span class="login100-form-title">
                        Performing Management System
                     </span>
-                    @if ($errors->any())
-                    <div class="alert alert-danger alert-dismissible">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                   @if ($message = Session::get('success'))
-                    <div class="alert alert-success alert-dismissible">
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <p>{{ $message }}</p>
-                            </div>
-                     @endif
-                    <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                                                           <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
                         <input class="input100" type="text" name="email" placeholder="Email">
                         <span class="focus-input100"></span>
                         <span class="symbol-input100">
@@ -77,13 +60,13 @@
 
                     </div>
                    <div class="text-center p-t-12">
-                        <a class="txt2" href="{{route('password.request')}}">
+                        <a class="txt2" href="http://127.0.0.1:8000/password/reset">
                             Forgot Password?
                         </a>
                         <span class="txt1">
                             |
                         </span>
-                        <a class="txt2" href="{{route('registerUser')}}">
+                        <a class="txt2" href="http://127.0.0.1:8000/registerUser">
                             Register?
                         </a>
                     </div>
