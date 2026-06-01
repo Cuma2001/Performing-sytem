@@ -148,7 +148,7 @@
                 <form class="login100-form validate-form" id ="loginForm" action="{{ route('loginStore') }}"  method="post">
                 @csrf <!-- {{ csrf_field() }} -->
                 <div class="login100-pic js-tilt" data-tilt>
-                        <img style="width: 300px" src="{{asset('images/logo2.png')}}" alt="IMG">
+                        <img style="width: 300px" src="{{asset('assets/images/logo.png')}}" alt="IMG">
                     </div>
                     <span class="login100-form-title">
                        Performance Management System
