@@ -194,12 +194,16 @@
 
                     </div>
                     <div class="text-center p-t-12">
+                         <a class="txt2" href="{{url('/registerUser')}}">
+                            Register Now
+                        </a>
                         <span class="txt1">
                             Forgot
                         </span>
                         <a class="txt2" href="{{url('/forgetPassword')}}">
                             Password?
                         </a>
+
                     </div>
                     <div class="text-center p-t-136">
 

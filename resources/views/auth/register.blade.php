@@ -39,26 +39,26 @@
         .ring{
             width:200px;
             height:200px;
-            border:0px solid #18345d;
+            border:0px solid #1d6988;
             border-radius:50%;
             position:absolute;
         }
 
         .ring:nth-child(1){
             border-bottom-width:8px;
-            border-color:#18345d;
+            border-color:#1d6988;
             animation:rotate1 2s linear infinite;
         }
 
         .ring:nth-child(2){
             border-right-width:8px;
-            border-color:#C3BE5C;
+            border-color:#f4c610;
             animation:rotate2 2s linear infinite;
         }
 
         .ring:nth-child(3){
             border-top-width:8px;
-            border-color:#8689a1;
+            border-color:#e5222b;
             animation:rotate3 2s linear infinite;
         }
 
@@ -108,7 +108,7 @@
         }
 
         .card1 {
-            background: linear-gradient(135deg, #18345d, #242459);
+            background: linear-gradient(135deg, #1d6988, #242459);
             height: 100%;
             color: white;
         }
@@ -134,11 +134,11 @@
 
         .form-control:focus {
             box-shadow: none;
-            border: 1px solid #18345d;
+            border: 1px solid #1d6988;
         }
 
         .btn-success {
-            background: #18345d;
+            background: #1d6988;
             border: none;
             padding: 12px 35px;
             border-radius: 10px;
@@ -163,7 +163,7 @@
         }
 
         .social-contact span:hover {
-            color: #C3BE5C;
+            color: #f4c610;
         }
 
         .form-check-label {
