@@ -3,7 +3,7 @@
 
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
 <head>
-    <title>Login - Leave App</title>
+    <title>Login - Performance App</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -187,7 +187,7 @@
                     <div class="container-login100-form-btn">
                         <div class="overlay"> <div class="spinner"></div></div>
 
-                        <button style="background-color: rgb(6, 6, 102)" data-style="expand-right" type="submit" id = "btnSubmit" class=" login100-form-btn buttonload" onclick = "return Login()" >
+                        <button style="background-color: rgba(29, 105, 136)" data-style="expand-right" type="submit" id = "btnSubmit" class=" login100-form-btn buttonload" onclick = "return Login()" >
 
                         Login
                         </button>
