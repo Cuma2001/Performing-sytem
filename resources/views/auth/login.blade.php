@@ -200,7 +200,7 @@
                         <span class="txt1">
                             Forgot
                         </span>
-                        <a class="txt2" href="{{url('/forgetPassword')}}">
+                        <a class="txt2" href="{{url('/forgot-password')}}">
                             Password?
                         </a>
 
