@@ -42,24 +42,24 @@
     .ring{
     width: 200px;
     height: 200px;
-    border: 0px solid #18345d;
+    border: 0px solid #1d6988;
     border-radius: 50%;
     position: absolute;
     }
 
     .ring:nth-child(1){
     border-bottom-width: 8px;
-    border-color: #18345d;
+    border-color:#1d6988;
     animation: rotate1 2s linear infinite;
     }
     .ring:nth-child(2){
     border-right-width: 8px;
-    border-color: #C3bE5C;
+    border-color: #f4c610;
     animation: rotate2 2s linear infinite;
     }
     .ring:nth-child(3){
     border-top-width: 8px;
-    border-color: #8689a1;
+    border-color: #e5222b;
     animation: rotate3 2s linear infinite;
     }
 
