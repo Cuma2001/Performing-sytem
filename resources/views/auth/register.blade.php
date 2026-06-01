@@ -1,35 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @include('layouts.head')
+    <title>Register - Performance App</title>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}">
 
     <!-- Font Awesome -->
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+        href="{{ asset('assets/fonts/font-awesome-4.7.0/css/font-awesome.min.css') }}">
+
+    <!-- Animate -->
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/animate/animate.css') }}">
+
+    <!-- Hamburgers -->
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/css-hamburgers/hamburgers.min.css') }}">
+
+    <!-- Select2 -->
+    <link rel="stylesheet"
+        href="{{ asset('assets/vendor/select2/select2.min.css') }}">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet"
+        href="{{ asset('assets/css/util.css') }}">
+
+    <link rel="stylesheet"
+        href="{{ asset('assets/css/main.css') }}">
 
     <style>
 
-        body {
-            background-color: #f5f7fb;
+        body{
+            background:#f5f5f5;
         }
 
         /* =========================
            Loader
         ========================== */
+
         .loader-wrapper{
             width:100%;
             height:100%;
             position:fixed;
             top:0;
             left:0;
-            background-color:#fff;
+            background:#fff;
             display:flex;
             justify-content:center;
             align-items:center;
@@ -39,7 +61,7 @@
         .ring{
             width:200px;
             height:200px;
-            border:0px solid #1d6988;
+            border:0px solid transparent;
             border-radius:50%;
             position:absolute;
         }
@@ -63,458 +85,537 @@
         }
 
         .loading{
-            color:black;
-            font-size:18px;
             font-weight:600;
-            margin-top:230px;
+            color:#000;
         }
 
-        @keyframes rotate1 {
-            0% {
-                transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+        @keyframes rotate1{
+            0%{
+                transform:rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
             }
-            100% {
-                transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
-            }
-        }
-
-        @keyframes rotate2 {
-            0% {
-                transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
-            }
-            100% {
-                transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+            100%{
+                transform:rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
             }
         }
 
-        @keyframes rotate3 {
-            0% {
-                transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+        @keyframes rotate2{
+            0%{
+                transform:rotateX(50deg) rotateY(10deg) rotateZ(0deg);
             }
-            100% {
-                transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+            100%{
+                transform:rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+            }
+        }
+
+        @keyframes rotate3{
+            0%{
+                transform:rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+            }
+            100%{
+                transform:rotateX(35deg) rotateY(55deg) rotateZ(360deg);
             }
         }
 
         /* =========================
-           Page Design
+           Form Inputs
         ========================== */
 
-        .card0 {
-            border-radius: 20px;
-            overflow: hidden;
-            border: none;
-            background: #fff;
+        .wrap-input100{
+            width:100%;
+            position:relative;
+            margin-bottom:18px;
         }
 
-        .card1 {
-            background: linear-gradient(135deg, #1d6988, #242459);
-            height: 100%;
-            color: white;
+        .input100,
+        .wrap-input100 select{
+
+            width:100%;
+            height:50px;
+            border:1px solid #ccc;
+            border-radius:25px;
+            background:#fff;
+            outline:none;
+            padding-left:60px;
+            padding-right:20px;
+            font-size:14px;
+            color:#333;
+
         }
 
-        .logo {
-            width: 180px;
-            margin: 30px;
+        .input100:focus,
+        .wrap-input100 select:focus{
+            border:1px solid #1d6988;
         }
 
-        .image {
-            border-radius: 15px;
+        .symbol-input100{
+
+            position:absolute;
+            left:0;
+            top:0;
+            width:60px;
+            height:50px;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            color:#666;
+            font-size:16px;
+
+            pointer-events:none;
+
         }
 
-        .card2 {
-            border-radius: 20px;
+        textarea{
+            resize:none;
         }
 
-        .form-control {
-            height: 50px;
-            border-radius: 10px;
-            margin-bottom: 15px;
+        .register-scroll{
+            max-height:700px;
+            overflow-y:auto;
+            padding-right:10px;
         }
 
-        .form-control:focus {
-            box-shadow: none;
-            border: 1px solid #1d6988;
+        .register-scroll::-webkit-scrollbar{
+            width:6px;
         }
 
-        .btn-success {
-            background: #1d6988;
-            border: none;
-            padding: 12px 35px;
-            border-radius: 10px;
+        .register-scroll::-webkit-scrollbar-thumb{
+            background:#ccc;
+            border-radius:10px;
         }
 
-        .btn-success:hover {
-            background: #0f2747;
+        .login100-form-btn{
+            background:#1d6988;
+            border:none;
+            width:100%;
+            height:50px;
+            border-radius:25px;
+            color:#fff;
+            font-weight:600;
+            transition:0.3s;
         }
 
-        .btn-dark {
-            padding: 12px 35px;
-            border-radius: 10px;
+        .login100-form-btn:hover{
+            background:#0f2747;
         }
 
-        .bg-blue {
-            color: #fff;
-        }
-
-        .social-contact span {
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .social-contact span:hover {
-            color: #f4c610;
-        }
-
-        .form-check-label {
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .fa {
-            margin-left: -12px;
-            margin-right: 8px;
-        }
-
-        @media(max-width:768px){
-
-            .card1{
-                display:none;
-            }
-
-            .card2{
-                padding:20px !important;
-            }
+        .login100-pic img{
+            max-width:100%;
         }
 
     </style>
+
 </head>
 
 <body>
 
-<!-- =========================
-     Loader
-========================= -->
-<div class="loader-wrapper" id="loader">
+<!-- Loader -->
+<div class="loader-wrapper">
+
     <div class="ring"></div>
     <div class="ring"></div>
     <div class="ring"></div>
-    <span class="loading">Loading...</span>
+
+    <span class="loading">
+        Loading...
+    </span>
+
 </div>
 
-<!-- =========================
-     Main Container
-========================= -->
-<div class="container-fluid px-1 px-md-5 px-lg-1 px-xl-5 py-5 mx-auto">
+<div class="limiter">
 
-    <div class="card card0 shadow-lg">
+    <div class="container-login100">
 
-        <div class="row d-flex">
+        <div class="wrap-login100">
 
-            <!-- Left Side -->
-            <div class="col-lg-5 p-0">
-                <div class="card1 pb-5">
+            <!-- Left Image -->
+            <div class="login100-pic js-tilt" data-tilt>
 
-                    <div class="row ml-3">
-                        <img src="{{ url('/images/logo.png') }}" class="logo">
-                    </div>
+                <img src="{{ asset('assets/images/img-01.png') }}"
+                    alt="IMG">
 
-                    <div class="row px-3 justify-content-center mt-4 mb-5 border-line">
-                        <img src="{{ url('/images/register.jpg') }}" class="image" style="width: 70%;">
-                    </div>
-
-                </div>
             </div>
 
-            <!-- Right Side -->
-            <div class="col-lg-7">
+            <!-- Register Form -->
+            <form class="login100-form validate-form register-scroll"
+                method="POST"
+                action="{{ route('registerUser') }}">
 
-                <div class="card2 card border-0 px-4 py-5">
+                @csrf
 
-                    <div class="row mb-4 px-3">
-                        <h2 class="mb-0 font-weight-bold">
-                            Register User
-                        </h2>
-                    </div>
+                <!-- Logo -->
+                <div class="login100-pic js-tilt mb-3"
+                    data-tilt>
 
-                    <!-- Error Messages -->
-                    @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            <button type="button" class="close" data-dismiss="alert">
-                                &times;
-                            </button>
-
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <!-- Success Message -->
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success alert-dismissible fade show">
-                            <button type="button" class="close" data-dismiss="alert">
-                                &times;
-                            </button>
-
-                            {{ $message }}
-                        </div>
-                    @endif
-
-                    <small class="mb-4 d-block">
-                        Please fill this form to create an account.
-                    </small>
-
-                    <!-- Form -->
-                    <form action="{{ route('registerUser') }}" method="POST">
-
-                        @csrf
-
-                        <div class="row">
-
-                            <!-- Title -->
-                            <div class="col-md-3">
-                                <label>Title</label>
-
-                                <select class="form-control" name="title" required>
-                                    <option value="">None</option>
-
-                                    @foreach(['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'] as $t)
-                                        <option value="{{ $t }}"
-                                            {{ old('title') == $t ? 'selected' : '' }}>
-                                            {{ $t }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Name -->
-                            <div class="col-md-4">
-                                <label>Name</label>
-
-                                <input type="text"
-                                    name="name"
-                                    placeholder="John"
-                                    class="form-control"
-                                    value="{{ old('name') }}"
-                                    required>
-                            </div>
-
-                            <!-- Surname -->
-                            <div class="col-md-5">
-                                <label>Surname</label>
-
-                                <input type="text"
-                                    name="surname"
-                                    placeholder="Doe"
-                                    class="form-control"
-                                    value="{{ old('surname') }}"
-                                    required>
-                            </div>
-
-                            <!-- ID Number -->
-                            <div class="col-md-4">
-                                <label>ID Number</label>
-
-                                <input type="text"
-                                    name="id_no"
-                                    placeholder="9803300876089"
-                                    class="form-control"
-                                    pattern="[0-9]{13}"
-                                    value="{{ old('id_no') }}"
-                                    required>
-                            </div>
-
-                            <!-- Gender -->
-                            <div class="col-md-3">
-                                <label>Gender</label>
-
-                                <select name="gender"
-                                    class="form-control"
-                                    required
-                                    id="gender">
-
-                                    <option value="">None</option>
-
-                                    <option value="Male"
-                                        {{ old('gender') == 'Male' ? 'selected' : '' }}>
-                                        Male
-                                    </option>
-
-                                    <option value="Female"
-                                        {{ old('gender') == 'Female' ? 'selected' : '' }}>
-                                        Female
-                                    </option>
-
-                                </select>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="col-md-5">
-                                <label>Email</label>
-
-                                <input type="email"
-                                    name="email"
-                                    placeholder="john@example.com"
-                                    class="form-control"
-                                    value="{{ old('email') }}"
-                                    required>
-                            </div>
-
-                            <!-- Phone -->
-                            <div class="col-md-4">
-                                <label>Mobile Number</label>
-
-                                <input type="text"
-                                    name="phone"
-                                    placeholder="0123456789"
-                                    pattern="[0-9]{10}"
-                                    class="form-control"
-                                    value="{{ old('phone') }}"
-                                    required>
-                            </div>
-
-                            <!-- Communication -->
-                            <div class="col-md-4">
-                                <label>Communication</label>
-
-                                <select name="communication"
-                                    class="form-control"
-                                    required>
-
-                                    <option value="">None</option>
-
-                                    <option value="Email">Email</option>
-                                    <option value="SMS">SMS</option>
-                                    <option value="Both">Both</option>
-
-                                </select>
-                            </div>
-
-                            <!-- Department -->
-                            <div class="col-md-4">
-                                <label>Department</label>
-
-                                <input type="text"
-                                    name="department"
-                                    class="form-control"
-                                    placeholder="Department"
-                                    required>
-                            </div>
-
-                            <!-- Job Title -->
-                            <div class="col-md-4">
-                                <label>Job Title</label>
-
-                                <input type="text"
-                                    name="job_title"
-                                    class="form-control"
-                                    placeholder="IT Manager"
-                                    required>
-                            </div>
-
-                            <!-- Role -->
-                            <div class="col-md-4">
-                                <label>Register As</label>
-
-                                <select name="role"
-                                    class="form-control"
-                                    required>
-
-                                    <option value="">None</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="User">User</option>
-                                    <option value="department-head">
-                                        Department-head
-                                    </option>
-
-                                </select>
-                            </div>
-
-                            <!-- Location -->
-                            <div class="col-md-12">
-                                <label>Location</label>
-
-                                <input type="text"
-                                    name="location"
-                                    placeholder="East London, Eastern Cape"
-                                    class="form-control"
-                                    value="{{ old('location') }}"
-                                    required>
-                            </div>
-
-                            <!-- Declaration -->
-                            <div class="col-md-12 mt-3">
-
-                                <div class="form-check">
-
-                                    <input type="checkbox"
-                                        class="form-check-input"
-                                        id="declaration"
-                                        required>
-
-                                    <label class="form-check-label"
-                                        for="declaration">
-
-                                        To the best of my knowledge,
-                                        the details I've given are accurate
-                                        and comprehensive.
-
-                                    </label>
-
-                                </div>
-                            </div>
-
-                            <!-- Buttons -->
-                            <div class="col-md-12 mt-4 text-center">
-
-                                <button type="submit"
-                                    class="btn btn-success">
-
-                                    Register
-                                </button>
-
-                                <a href="{{ route('login') }}"
-                                    class="btn btn-dark ml-2">
-
-                                    Back to login
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </form>
+                    <img style="width:250px"
+                        src="{{ asset('assets/images/logo.png') }}"
+                        alt="IMG">
 
                 </div>
 
-                <!-- Footer -->
-                <div class="bg-blue py-4"
-                    style="background-color:#242459;">
+                <span class="login100-form-title">
+                    Register User
+                </span>
 
-                    <div class="row px-3">
+                <!-- Errors -->
+                @if ($errors->any())
 
-                        <small class="ml-4 mb-2">
-                            &copy; {{ now()->year }}
-                            All rights reserved.
-                        </small>
+                    <div class="alert alert-danger">
 
-                        <div class="social-contact ml-auto">
+                        <ul class="mb-0">
 
-                            <span class="fa fa-facebook mr-4"></span>
-                            <span class="fa fa-google-plus mr-4"></span>
-                            <span class="fa fa-linkedin mr-4"></span>
-                            <span class="fa fa-twitter mr-4"></span>
+                            @foreach ($errors->all() as $error)
 
-                        </div>
+                                <li>{{ $error }}</li>
+
+                            @endforeach
+
+                        </ul>
 
                     </div>
 
+                @endif
+
+                <!-- Success -->
+                @if ($message = Session::get('success'))
+
+                    <div class="alert alert-success">
+
+                        {{ $message }}
+
+                    </div>
+
+                @endif
+
+                <!-- Title -->
+                <div class="wrap-input100">
+
+                    <select name="title" required>
+
+                        <option value="">
+                            Select Title
+                        </option>
+
+                        <option value="Mr.">Mr.</option>
+                        <option value="Mrs.">Mrs.</option>
+                        <option value="Ms.">Ms.</option>
+                        <option value="Dr.">Dr.</option>
+                        <option value="Prof.">Prof.</option>
+
+                    </select>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-user"></i>
+                    </span>
+
                 </div>
 
-            </div>
+                <!-- Name -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="name"
+                        placeholder="Name"
+                        value="{{ old('name') }}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-user"></i>
+                    </span>
+
+                </div>
+
+                <!-- Surname -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="surname"
+                        placeholder="Surname"
+                        value="{{ old('surname') }}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-user"></i>
+                    </span>
+
+                </div>
+
+                <!-- ID -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="id_no"
+                        id="id_no"
+                        placeholder="ID Number"
+                        pattern="[0-9]{13}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-id-card"></i>
+                    </span>
+
+                </div>
+
+                <!-- Gender -->
+                <div class="wrap-input100">
+
+                    <select name="gender"
+                        id="gender"
+                        required>
+
+                        <option value="">
+                            Select Gender
+                        </option>
+
+                        <option value="Male">
+                            Male
+                        </option>
+
+                        <option value="Female">
+                            Female
+                        </option>
+
+                    </select>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-users"></i>
+                    </span>
+
+                </div>
+
+                <!-- Email -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value="{{ old('email') }}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-envelope"></i>
+                    </span>
+
+                </div>
+
+                <!-- Phone -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="phone"
+                        placeholder="Mobile Number"
+                        pattern="[0-9]{10}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-phone"></i>
+                    </span>
+
+                </div>
+
+                <!-- Communication -->
+                <div class="wrap-input100">
+
+                    <select name="communication"
+                        required>
+
+                        <option value="">
+                            Communication
+                        </option>
+
+                        <option value="Email">
+                            Email
+                        </option>
+
+                        <option value="SMS">
+                            SMS
+                        </option>
+
+                        <option value="Both">
+                            Both
+                        </option>
+
+                    </select>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-comments"></i>
+                    </span>
+
+                </div>
+
+                <!-- Store -->
+                <div class="wrap-input100">
+
+                    <select name="store"
+                        required>
+
+                        <option value="">
+                            Store Address
+                        </option>
+
+                        <option value="Hemmingways">
+                            Hemmingways
+                        </option>
+
+                        <option value="Vincent">
+                            Vincent
+                        </option>
+
+                        <option value="Stone Towers">
+                            Stone Towers
+                        </option>
+
+                    </select>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-location"></i>
+                    </span>
+
+                </div>
+
+                <!-- Job Title -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="job_title"
+                        placeholder="Job Title"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-briefcase"></i>
+                    </span>
+
+                </div>
+
+                <!-- Role -->
+                <div class="wrap-input100">
+
+                    <select name="role"
+                        required>
+
+                        <option value="">
+                            Register As
+                        </option>
+
+                        <option value="Admin">
+                            Admin
+                        </option>
+
+                        <option value="User">
+                            User
+                        </option>
+
+                        <option value="department-head">
+                            Department Head
+                        </option>
+
+                    </select>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-user-secret"></i>
+                    </span>
+
+                </div>
+
+                <!-- Location -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="text"
+                        name="location"
+                        placeholder="Location"
+                        value="{{ old('location') }}"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-map-marker"></i>
+                    </span>
+
+                </div>
+
+                <!-- Password -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-lock"></i>
+                    </span>
+
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="wrap-input100">
+
+                    <input class="input100"
+                        type="password"
+                        name="password_confirmation"
+                        placeholder="Confirm Password"
+                        required>
+
+                    <span class="symbol-input100">
+                        <i class="fa fa-lock"></i>
+                    </span>
+
+                </div>
+
+                <!-- Declaration -->
+                <div class="mb-3">
+
+                    <input type="checkbox"
+                        id="declaration"
+                        required>
+
+                    <label for="declaration"
+                        style="font-size:13px">
+
+                        To the best of my knowledge,
+                        the details I've given are accurate.
+
+                    </label>
+
+                </div>
+
+                <!-- Button -->
+                <div class="container-login100-form-btn">
+
+                    <button type="submit"
+                        class="login100-form-btn">
+
+                        Register
+
+                    </button>
+
+                </div>
+
+                <!-- Login -->
+                <div class="text-center p-t-12">
+
+                    <span class="txt1">
+                        Already have an account?
+                    </span>
+
+                    <a class="txt2"
+                        href="{{ route('login') }}">
+
+                        Login Here
+
+                    </a>
+
+                </div>
+
+            </form>
 
         </div>
 
@@ -522,53 +623,63 @@
 
 </div>
 
-<!-- =========================
-     Scripts
-========================= -->
+<!-- Scripts -->
+
+<script src="{{ asset('assets/vendor/jquery/jquery-3.2.1.min.js') }}"></script>
+
+<script src="{{ asset('assets/vendor/bootstrap/js/popper.js') }}"></script>
+
+<script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.min.js') }}"></script>
+
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
+
+<script src="{{ asset('assets/vendor/tilt/tilt.jquery.min.js') }}"></script>
+
+<script src="{{ asset('assets/js/main.js') }}"></script>
 
 <script>
 
     // Hide Loader
-    $(window).on("load", function () {
-        $("#loader").fadeOut("slow");
+    $(window).on("load", function(){
+
+        $(".loader-wrapper").fadeOut("slow");
+
+    });
+
+    // Tilt
+    $('.js-tilt').tilt({
+        scale:1.1
     });
 
     // Auto Gender Detection
-    $(document).ready(function () {
+    $("#id_no").on("input", function(){
 
-        $("input[name='id_no']").on('input', function () {
+        let idNumber = $(this).val();
 
-            var idNumber = $(this).val();
+        if(idNumber.length >= 10){
 
-            if (idNumber.length >= 10) {
+            let genderCode =
+                parseInt(idNumber.substring(6,10));
 
-                var genderCode =
-                    parseInt(idNumber.substring(6, 10));
+            if(genderCode < 5000){
 
-                if (!isNaN(genderCode)) {
+                $("#gender").val("Female");
 
-                    if (genderCode < 5000) {
-                        $("#gender").val("Female");
-                    } else {
-                        $("#gender").val("Male");
-                    }
-                }
+            }else{
 
-            } else {
-
-                $("#gender").val("");
+                $("#gender").val("Male");
 
             }
 
-        });
+        }else{
+
+            $("#gender").val("");
+
+        }
 
     });
 
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
-
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </body>
 </html>
