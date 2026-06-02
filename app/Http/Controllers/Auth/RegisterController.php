@@ -38,10 +38,10 @@ class RegisterController extends Controller
             'role' => [
                 'required',
                 Rule::in([
-                    'CEO/Manager',
+                    'CEO',
                     'Supervisor',
                     'HR',
-                    'Regional Manager'
+                    'Admin'
                 ])
             ],
 

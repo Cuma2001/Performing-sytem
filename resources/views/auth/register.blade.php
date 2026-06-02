@@ -463,13 +463,22 @@
                             Hemmingways
                         </option>
 
-                        <option value="Vincent">
-                            Vincent
+                        <option value="Patycn Centre">
+                            Patycn Centre
                         </option>
 
                         <option value="Stone Towers">
                             Stone Towers
                         </option>
+
+                        <option value="Beacon Bay">
+                            Beacon Bay
+                        </option>
+
+                        <option value="Metlife Kiosk">
+                            Metlife Kiosk
+                        </option>
+
 
                     </select>
 
@@ -482,29 +491,13 @@
                 <!-- Role -->
                 <div class="wrap-input100">
 
-                    <select name="role"
-                        required>
-
-                        <option value="">
-                            Register As
-                        </option>
-
-                        <option value="Admin">
-                            Admin
-                        </option>
-
-                        <option value="User">
-                            Supervisor
-                        </option>
-
-                        <option value="department-head">
-                            CEO
-                        </option>
-                         <option value="department-head">
-                            HR Manager
-                        </option>
-
-                    </select>
+                    <select name="role" required>
+    <option value="" disabled selected>Register As</option>
+    <option value="Admin">Admin</option>
+    <option value="Supervisor">Supervisor</option>
+    <option value="CEO">CEO</option>
+    <option value="HR">HR</option>
+</select>
 
                     <span class="symbol-input100">
                         <i class="fa fa-user-secret"></i>
