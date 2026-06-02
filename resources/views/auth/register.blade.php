@@ -479,21 +479,6 @@
 
                 </div>
 
-                <!-- Job Title -->
-                <div class="wrap-input100">
-
-                    <input class="input100"
-                        type="text"
-                        name="job_title"
-                        placeholder="Job Title"
-                        required>
-
-                    <span class="symbol-input100">
-                        <i class="fa fa-briefcase"></i>
-                    </span>
-
-                </div>
-
                 <!-- Role -->
                 <div class="wrap-input100">
 
@@ -509,33 +494,20 @@
                         </option>
 
                         <option value="User">
-                            User
+                            Supervisor
                         </option>
 
                         <option value="department-head">
-                            Department Head
+                            CEO
+                        </option>
+                         <option value="department-head">
+                            HR Manager
                         </option>
 
                     </select>
 
                     <span class="symbol-input100">
                         <i class="fa fa-user-secret"></i>
-                    </span>
-
-                </div>
-
-                <!-- Location -->
-                <div class="wrap-input100">
-
-                    <input class="input100"
-                        type="text"
-                        name="location"
-                        placeholder="Location"
-                        value="{{ old('location') }}"
-                        required>
-
-                    <span class="symbol-input100">
-                        <i class="fa fa-map-marker"></i>
                     </span>
 
                 </div>
