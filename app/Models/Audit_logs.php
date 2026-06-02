@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmployeeKPI extends Model
+class Audit_logs extends Model
 {
     //
 }

@@ -13,7 +13,14 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 100)->unique();
+            $table->string('slug', 100)->unique();
+            $table->text('description')->nullable();
+            $table->boolean('is_system_role')->default(false);
             $table->timestamps();
+
+            $table->index('slug');
+            $table->index('is_system_role');
         });
     }
 
