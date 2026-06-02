@@ -194,7 +194,7 @@
 
                     </div>
                     <div class="text-center p-t-12">
-                         <a class="txt2" href="{{url('/registerUser')}}">
+                         <a class="txt2" href="{{url('/register')}}">
                             Register Now
                         </a>
                         <span class="txt1">

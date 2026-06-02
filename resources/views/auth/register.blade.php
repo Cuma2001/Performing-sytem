@@ -240,7 +240,7 @@
             <!-- Register Form -->
             <form class="login100-form validate-form register-scroll"
                 method="POST"
-                action="{{ route('registerUser') }}">
+                action="{{ route('register') }}">
 
                 @csrf
 
