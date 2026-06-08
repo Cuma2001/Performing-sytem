@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\StoreTargetUploadController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -12,9 +13,22 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ->middleware(['auth', 'verified'])
+
+// utilities storeUploads
+// Store Target Upload Routes
+    Route::get('utilities', [StoreTargetUploadController::class, 'utilities'])->name('utility');
+
+Route::prefix('utility')->middleware(['auth'])->group(function () {
+    Route::get('master-upload', [StoreTargetUploadController::class, 'index'])->name('utility.master-upload');
+    Route::post('master-preview', [StoreTargetUploadController::class, 'preview'])->name('utility.master-preview');
+    Route::post('master-validate', [StoreTargetUploadController::class, 'validate'])->name('utility.master-validate');
+    Route::post('master-process', [StoreTargetUploadController::class, 'process'])->name('utility.master-process');
+    Route::get('master-history', [StoreTargetUploadController::class, 'history'])->name('utility.master-history');
+    Route::get('master-upload/{id}', [StoreTargetUploadController::class, 'show'])->name('utility.master-upload.show');
+    Route::get('master-template', [StoreTargetUploadController::class, 'downloadTemplate'])->name('utility.master-template');
+});
 
 /*
 |--------------------------------------------------------------------------

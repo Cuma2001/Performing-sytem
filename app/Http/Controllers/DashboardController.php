@@ -10,11 +10,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        // $user = auth()->user();
 
         // Default score
-        $finalScore = 0;
+        // $finalScore = 0;
 
-        return view('dashboard', compact('finalScore'));
+        return view('dashboard');
     }
 }
