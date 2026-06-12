@@ -492,12 +492,12 @@
                 <div class="wrap-input100">
 
                     <select name="role" required>
-    <option value="" disabled selected>Register As</option>
-    <option value="Admin">Admin</option>
-    <option value="Supervisor">Supervisor</option>
-    <option value="CEO">CEO</option>
-    <option value="HR">HR</option>
-</select>
+                        <option value="" disabled selected>Register As</option>
+                        <option value="Superadmin">Superadmin</option>
+                        <option value="CEO/HR">CEO/HR</option>
+                        <option value="Salesperson">Salesperson</option>
+                        <option value="Supervisor">Supervisor</option>
+                    </select>
 
                     <span class="symbol-input100">
                         <i class="fa fa-user-secret"></i>

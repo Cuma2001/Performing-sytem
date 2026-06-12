@@ -51,7 +51,7 @@ class LoginController extends Controller
         $user->generateOneTimePin();
         $user->save();
 
-        Mail::to($user->email)->send(new OTPVerification($user->otp));
+        Mail::to($user->email)->send(new \App\Mail\OTPVerification($user->one_time_pin));
 
         return redirect()->route('otp.verify')->with('message', 'An OTP has been sent to your email.');
     }
@@ -77,7 +77,7 @@ class LoginController extends Controller
             'otp' => 'required|digits:6',
         ]);
 
-        $user = User::where('otp', $request->otp)->where('otp_expires_at', '>', now())->first();
+        $user = User::where('one_time_pin', $request->otp)->where('otp_expires_at', '>', now())->first();
 
         if (!$user) {
             return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
@@ -85,7 +85,7 @@ class LoginController extends Controller
 
         Auth::login($user);
 
-        $user->otp = null;
+        $user->one_time_pin = null;
         $user->otp_expires_at = null;
         $user->save();
 
@@ -103,7 +103,7 @@ class LoginController extends Controller
         $user->generateOneTimePin(); // Ensure this method exists in your User model
         $user->save();
 
-        Mail::to($user->email)->send(new OTPVerification($user->otp));
+        Mail::to($user->email)->send(new \App\Mail\OTPVerification($user->one_time_pin));
 
         return redirect()->route('otp.verify')->with('message', 'A new OTP has been sent to your email.');
     }

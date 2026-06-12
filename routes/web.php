@@ -5,7 +5,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\OTPController;
 use App\Http\Controllers\StoreTargetUploadController;
+use App\Mail\OTPVerification;
 
 use Illuminate\Support\Facades\Route;
 
@@ -13,8 +15,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // ->middleware(['auth', 'verified'])
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth']);
 
 // utilities storeUploads
 // Store Target Upload Routes
@@ -75,6 +76,12 @@ Route::get('password/reset/{id}/{token}', [ForgotPasswordController::class, 'sho
 Route::post('password/reset', [ForgotPasswordController::class, 'reset'])
     ->name('password.update');
 
+
+Route::get('/otp/verify', [OTPController::class, 'showVerifyForm'])
+    ->name('otp.verify');
+
+Route::post('/otp/verify', [OTPController::class, 'verify'])
+    ->name('otp.verify.submit');
 /*
 |--------------------------------------------------------------------------
 | Profile

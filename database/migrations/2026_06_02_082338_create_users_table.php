@@ -6,19 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
  Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 150);
             $table->string('email', 150)->unique();
-            $table->string('password');
-            $table->string('employee_code', 50)->unique()->nullable();
+            $table->string('id_no', 50)->unique()->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('mobile', 20)->nullable();
+            $table->string('password');
+            $table->string('employee_code', 50)->unique()->nullable();
             $table->text('address')->nullable();
             $table->foreignId('role_id')->constrained('roles')->restrictOnDelete();
             $table->foreignId('region_id')->nullable()->constrained('regions')->nullOnDelete();
@@ -35,6 +34,8 @@ return new class extends Migration
             $table->string('last_login_ip', 45)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
+            $table->string('one_time_pin', 10)->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

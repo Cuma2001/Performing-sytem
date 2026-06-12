@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -25,6 +26,11 @@ class RegisterController extends Controller
      */
     public function register(Request $request)
     {
+        $availableRoles = DB::table('roles')->pluck('name')->toArray();
+        if (empty($availableRoles)) {
+            $availableRoles = ['CEO', 'Supervisor', 'HR', 'Admin'];
+        }
+
         $validator = Validator::make($request->all(), [
 
             'name' => ['required', 'string', 'max:255'],
@@ -37,12 +43,7 @@ class RegisterController extends Controller
 
             'role' => [
                 'required',
-                Rule::in([
-                    'CEO',
-                    'Supervisor',
-                    'HR',
-                    'Admin'
-                ])
+                Rule::in($availableRoles)
             ],
 
             'store' => [
@@ -74,6 +75,14 @@ class RegisterController extends Controller
                 ->withInput();
         }
 
+        // Resolve the selected role name to the required foreign key.
+        $roleId = DB::table('roles')->where('name', $request->role)->value('id');
+        if (! $roleId) {
+            return redirect()->back()
+                ->withErrors(['role' => 'Selected role is invalid'])
+                ->withInput();
+        }
+
         // Create user
         $user = User::create([
             'name' => ucwords(strtolower($request->name)),
@@ -81,6 +90,7 @@ class RegisterController extends Controller
             'email' => strtolower($request->email),
             'phone' => $phone,
             'role' => $request->role,
+            'role_id' => $roleId,
             'store' => $request->store,
             'password' => Hash::make($request->password),
         ]);
