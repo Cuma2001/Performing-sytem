@@ -50,6 +50,9 @@ Route::middleware(['auth'])->prefix('utility')->group(function () {
     Route::get('master-template', [StoreTargetUploadController::class, 'downloadTemplate'])->name('utility.master-template');
 });
 
+// Add to your utility routes group
+Route::get('utility/history-data', [StoreTargetUploadController::class, 'getHistoryData'])->name('utility.history-data');
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
