@@ -51,6 +51,32 @@
             </form>
         </div>
     </nav>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="public/assets/images/Screenshot_2026-02-10_085819-removebg-preview.png" alt="Logo" style="width: 40px; margin-bottom: 8px;">
+            <p>Performance Management</p>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <div class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link" data-page="kpi-distribution">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>KPI Distribution</span>
+                </div>
+            </li>
+            <li class="nav-item">
+                <div class="nav-link" data-page="kpi-upload">
+                    <i class="fas fa-upload"></i>
+                    <span>KPI Upload</span>
+                </div>
+            </li>
+        </ul>
+    </div>
     <main>
         @yield('content')
     </main>

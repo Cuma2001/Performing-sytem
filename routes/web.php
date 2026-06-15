@@ -42,6 +42,8 @@ Route::middleware(['auth'])->prefix('utility')->group(function () {
     
     Route::get('/', [StoreTargetUploadController::class, 'utilities'])->name('utility');
     Route::get('master-upload', [StoreTargetUploadController::class, 'index'])->name('utility.master-upload');
+    Route::post('master-upload', [StoreTargetUploadController::class, 'store'])
+    ->name('utility.master-upload.store');
     Route::post('master-preview', [StoreTargetUploadController::class, 'preview'])->name('utility.master-preview');
     Route::post('master-validate', [StoreTargetUploadController::class, 'validate'])->name('utility.master-validate');
     Route::post('master-process', [StoreTargetUploadController::class, 'process'])->name('utility.master-process');

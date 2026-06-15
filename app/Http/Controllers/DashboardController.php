@@ -87,17 +87,7 @@ class DashboardController extends Controller
         
     $totalStores = DB::table('stores')->count();
     
-    // Calculate attendance rate for the store
-    $attendanceRate = DB::table('attendance')
-        ->whereIn('user_id', User::where('store_id', $user->store_id)->pluck('id'))
-        ->whereMonth('date', date('m'))
-        ->where('status', 'present')
-        ->count();
-    $totalAttendance = DB::table('attendance')
-        ->whereIn('user_id', User::where('store_id', $user->store_id)->pluck('id'))
-        ->whereMonth('date', date('m'))
-        ->count();
-    $attendancePercentage = $totalAttendance > 0 ? round(($attendanceRate / $totalAttendance) * 100) : 95;
+    
     
     // Generate alerts based on performance
     $alerts = [];
@@ -123,7 +113,6 @@ class DashboardController extends Controller
         'teamPerformance' => $teamPerformance,
         'storeRank' => $storeRank,
         'totalStores' => $totalStores,
-        'attendanceRate' => $attendancePercentage,
         'alerts' => $alerts,
         'activeTeamMembers' => $activeTeamMembers,
     ]);

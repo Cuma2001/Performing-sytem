@@ -19,10 +19,11 @@ class StoreTargetUploadController extends Controller
     }
 
     public function preview(Request $request)
-    {
-        // Handle file preview logic
-        return response()->json(['message' => 'Preview processed']);
-    }
+{
+    // Handle uploaded file
+
+    return back()->with('success', 'File uploaded successfully.');
+}
 
     public function validateUpload(Request $request)
     {
@@ -107,4 +108,9 @@ class StoreTargetUploadController extends Controller
         $path = storage_path('app/templates/kpi_template.xlsx');
         return response()->download($path);
     }
+
+    public function store(Request $request)
+{
+    dd($request->all()); // test first
+}
 }
