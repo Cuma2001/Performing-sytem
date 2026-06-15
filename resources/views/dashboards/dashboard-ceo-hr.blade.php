@@ -300,7 +300,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2><i class="fas fa-chart-line" style="color: var(--primary-red);"></i> PMS</h2>
+            <img src="public/assets/images/Screenshot_2026-02-10_085819-removebg-preview.png" alt="Logo" style="width: 40px; margin-bottom: 8px;">
             <p>Performance Management</p>
         </div>
         <ul class="nav-menu">

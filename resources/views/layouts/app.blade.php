@@ -41,7 +41,7 @@
 <body>
     <nav class="navbar">
         <div style="font-weight: 700; color: #1d6988; font-size: 1.2rem;">
-            <i class="fas fa-chart-line" style="color: #e5222b;"></i> PMS
+            <img src="{{ asset('assets/images/Screenshot_2026-02-10_085819-removebg-preview.png') }}" alt="Logo" style="width: 190px; margin-bottom: 8px;">
         </div>
         <div class="nav-links">
             <a href="{{ route('dashboard') }}">Dashboard</a>
