@@ -76,7 +76,7 @@
                 </div>
             </li>
         </ul>
-    </div>
+    </div>   
     <main>
         @yield('content')
     </main>
