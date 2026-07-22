@@ -602,13 +602,6 @@
                 </a>
             </li>-->
         </ul>
-<<<<<<< Updated upstream
-    </div>   
-    <main>
-        @yield('content')
-    </main>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-=======
     </nav>
 
     <!-- Main Content -->
@@ -677,6 +670,5 @@
     </script>
 
     @stack('scripts')
->>>>>>> Stashed changes
 </body>
 </html>

@@ -85,16 +85,6 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="opening_time" style="display: block; font-weight: 600; margin-bottom: 4px;">Opening Time</label>
-                    <input type="time" name="opening_time" id="opening_time" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('opening_time') }}">
-                </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="closing_time" style="display: block; font-weight: 600; margin-bottom: 4px;">Closing Time</label>
-                    <input type="time" name="closing_time" id="closing_time" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('closing_time') }}">
-                </div>
-            </div>
 
             <div style="margin-bottom: 16px;">
                 <label for="parent_store_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Parent Store</label>
