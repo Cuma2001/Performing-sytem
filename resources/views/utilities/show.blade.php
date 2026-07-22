@@ -17,7 +17,7 @@
                         <dt class="col-sm-4">Type</dt>
                         <dd class="col-sm-8">
                             <span style="background: #f39c12; color: #1e2f3f; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; text-transform: uppercase;">
-                                {{ $upload->type }}
+                                {{ $upload->type ?? 'N/A' }}
                             </span>
                         </dd>
                         
@@ -65,8 +65,8 @@
                         
                         <dt class="col-sm-4">File Size</dt>
                         <dd class="col-sm-8">
-                            @if($upload->file_path && Storage::disk('public')->exists($upload->file_path))
-                                {{ number_format(Storage::disk('public')->size($upload->file_path) / 1024, 2) }} KB
+                            @if($upload->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($upload->file_path))
+                                {{ number_format(\Illuminate\Support\Facades\Storage::disk('public')->size($upload->file_path) / 1024, 2) }} KB
                             @else
                                 N/A
                             @endif
@@ -141,12 +141,12 @@
                 </a>
                 
                 @if($upload->isFailed())
-                    <button onclick="retryUpload({{ $upload->id }})" class="btn btn-warning">
+                    <button onclick="retryUpload()" class="btn btn-warning">
                         <i class="fas fa-redo"></i> Retry Upload
                     </button>
                 @endif
                 
-                <button onclick="deleteUpload({{ $upload->id }})" class="btn btn-danger">
+                <button onclick="deleteUpload()" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </div>
@@ -155,9 +155,9 @@
 </div>
 
 <script>
-function retryUpload(id) {
+function retryUpload() {
     if (confirm('Are you sure you want to retry this upload?')) {
-        $.post('{{ route('utility.retry', '') }}/' + id, {
+        $.post('{{ route('utility.retry', ['id' => $upload->id]) }}', {
             _token: '{{ csrf_token() }}'
         }, function(response) {
             if (response.success) {
@@ -170,10 +170,10 @@ function retryUpload(id) {
     }
 }
 
-function deleteUpload(id) {
+function deleteUpload() {
     if (confirm('Are you sure you want to delete this upload? This action cannot be undone.')) {
         $.ajax({
-            url: '{{ route('utility.delete', '') }}/' + id,
+            url: '{{ route('utility.delete', ['id' => $upload->id]) }}',
             type: 'DELETE',
             data: {
                 _token: '{{ csrf_token() }}'
