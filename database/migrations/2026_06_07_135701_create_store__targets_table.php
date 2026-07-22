@@ -172,9 +172,11 @@ return new class extends Migration
             CASE WHEN target_amount > 0 THEN ((actual_amount - target_amount) / target_amount) * 100 ELSE 0 END
         ) VIRTUAL');
 
-        // Add indexes for generated columns
-        DB::statement('ALTER TABLE `store_performance` ADD INDEX `idx_achievement_percentage` (`achievement_percentage`)');
-        DB::statement('ALTER TABLE `store_performance` ADD INDEX `idx_variance` (`variance`)');
+        // Use Laravel's schema builder so the indexes work on SQLite in tests as well as MySQL.
+        Schema::table('store_performance', function (Blueprint $table) {
+            $table->index('achievement_percentage', 'idx_achievement_percentage');
+            $table->index('variance', 'idx_variance');
+        });
 
         // Summary table for quick reporting by region/KPI
         Schema::create('store_target_summaries', function (Blueprint $table) {
