@@ -6,6 +6,10 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\StoreTargetUploadController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\KPIController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RegionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,25 +39,92 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Stores Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('stores', StoreController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Region Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('region', RegionController::class);
+    Route::resource('stores', StoreController::class);
+    Route::resource('users', UserController::class);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| KPI Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('kpis', KPIController::class);
+    Route::get('kpi-distribution', [KPIController::class, 'distribution'])->name('kpi.distribution');
+    Route::get('kpi-upload', [KPIController::class, 'upload'])->name('kpi.upload');
+});
+
+/*
+|--------------------------------------------------------------------------
+| User Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('users', UserController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Region Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('regions', \App\Http\Controllers\RegionController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Employee Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Utility Module (Protected)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->prefix('utility')->group(function () {
-    
-    Route::get('/', [StoreTargetUploadController::class, 'utilities'])->name('utility');
-    Route::get('master-upload', [StoreTargetUploadController::class, 'index'])->name('utility.master-upload');
-    Route::post('master-upload', [StoreTargetUploadController::class, 'store'])
-    ->name('utility.master-upload.store');
-    Route::post('master-preview', [StoreTargetUploadController::class, 'preview'])->name('utility.master-preview');
-    Route::post('master-validate', [StoreTargetUploadController::class, 'validate'])->name('utility.master-validate');
-    Route::post('master-process', [StoreTargetUploadController::class, 'process'])->name('utility.master-process');
-    Route::get('master-history', [StoreTargetUploadController::class, 'history'])->name('utility.master-history');
-    Route::get('master-upload/{id}', [StoreTargetUploadController::class, 'show'])->name('utility.master-upload.show');
-    Route::get('master-template', [StoreTargetUploadController::class, 'downloadTemplate'])->name('utility.master-template');
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('utilities')->group(function () {
+        Route::get('/', [StoreTargetUploadController::class, 'utilities'])->name('utilities.index');
+        Route::get('/master-upload', [StoreTargetUploadController::class, 'index'])->name('utility.master-upload');
+        
+        // AJAX routes
+        Route::post('/master-process', [StoreTargetUploadController::class, 'process'])->name('utility.master-process');
+        Route::get('/master-history', [StoreTargetUploadController::class, 'getHistory'])->name('utility.master-history');
+        
+        // History routes
+        Route::get('/history', [StoreTargetUploadController::class, 'history'])->name('utility.history');
+        Route::get('/history/{id}', [StoreTargetUploadController::class, 'show'])->name('utility.history.show');
+        
+        // Template download
+        Route::get('/template', [StoreTargetUploadController::class, 'downloadTemplate'])->name('utility.template');
+        
+        // File management
+        Route::post('/retry/{id}', [StoreTargetUploadController::class, 'retry'])->name('utility.retry');
+        Route::delete('/delete/{id}', [StoreTargetUploadController::class, 'delete'])->name('utility.delete');
+        
+        // Stats
+        Route::get('/stats', [StoreTargetUploadController::class, 'stats'])->name('utility.stats');
+    });
 });
-
-// Add to your utility routes group
-Route::get('utility/history-data', [StoreTargetUploadController::class, 'getHistoryData'])->name('utility.history-data');
 
 /*
 |--------------------------------------------------------------------------
@@ -101,9 +172,40 @@ Route::middleware('auth')->prefix('profile')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Reports Module (Protected)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('reports')->group(function () {
+    Route::get('/', function () {
+        return view('reports.index');
+    })->name('reports.index');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Fallback Route (404)
 |--------------------------------------------------------------------------
 */
 Route::fallback(function () {
     return view('errors.404');
 });
+
+
+Route::middleware(['auth'])->group(function () {
+    // User Management Routes
+    Route::resource('users', UserController::class);
+    
+    // Additional User Management Routes
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::patch('/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::patch('/{user}/lock', [UserController::class, 'lock'])->name('lock');
+        Route::patch('/{user}/unlock', [UserController::class, 'unlock'])->name('unlock');
+        Route::patch('/{user}/reset-password', [UserController::class, 'resetPassword'])->name('reset-password');
+        Route::post('/bulk-delete', [UserController::class, 'bulkDelete'])->name('bulk-delete');
+        
+        // ADD THIS LINE FOR EXPORT
+        Route::get('/export', [UserController::class, 'export'])->name('export');
+    });
+});
+
+

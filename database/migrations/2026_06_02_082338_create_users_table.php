@@ -6,10 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
- Schema::create('users', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name', 150);
             $table->string('email', 150)->unique();
@@ -19,9 +21,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('employee_code', 50)->unique()->nullable();
             $table->text('address')->nullable();
-            $table->foreignId('role_id')->constrained('roles')->restrictOnDelete();
+            $table->string('role', 50)->nullable(); // Superadmin, CEO/HR, Supervisor, Salesperson
+            $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->foreignId('region_id')->nullable()->constrained('regions')->nullOnDelete();
             $table->foreignId('store_id')->nullable()->constrained('stores')->nullOnDelete();
+            $table->string('store')->nullable(); // Store name as backup
             $table->foreignId('reports_to')->nullable()->constrained('users')->nullOnDelete();
             $table->date('hire_date')->nullable();
             $table->date('birth_date')->nullable();
@@ -39,8 +43,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            // Indexes for better performance
             $table->index('email');
             $table->index('employee_code');
+            $table->index('role');
             $table->index('role_id');
             $table->index('region_id');
             $table->index('store_id');

@@ -328,7 +328,7 @@
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-gift" style="color: var(--primary-teal);"></i></div>
             <h3>Incentive Earned</h3>
-            <div class="stat-value">R {{ number_format($incentive ?? 3250, 2) }}</div>
+            <div class="stat-value">R {{ number_format(3250, 2) }}</div>
             <div class="stat-change">Bonus pending: R1,500</div>
         </div>
     </div>

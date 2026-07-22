@@ -1,17 +1,16 @@
 <?php
-// app/Models/StoreTarget.php
+// app/Models/CompanyTarget.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StoreTarget extends Model
+class CompanyTarget extends Model
 {
-    protected $table = 'store_targets';
+    protected $table = 'company_targets';
 
     protected $fillable = [
-        'store_code',
         'target',
         'month',
         'upload_batch_id',

@@ -1,16 +1,17 @@
 <?php
-// app/Models/StoreTarget.php
+// app/Models/MtnTarget.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StoreTarget extends Model
+class MtnTarget extends Model
 {
-    protected $table = 'store_targets';
+    protected $table = 'mtn_targets';
 
     protected $fillable = [
+        'mtn_code',
         'store_code',
         'target',
         'month',

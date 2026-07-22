@@ -41,12 +41,14 @@ class DashboardController extends Controller
         $totalStores = Store::count();
         $activeSalesRecords = DB::table('sales_records')->count();
         $totalRevenue = DB::table('sales_records')->sum('amount') ?? 0;
+        $stores = Store::with(['parentStore', 'manager'])->get();
 
         return view('dashboards.dashboard-ceo-hr', [
             'totalUsers' => $totalUsers,
             'totalStores' => $totalStores,
             'activeSalesRecords' => $activeSalesRecords,
             'totalRevenue' => $totalRevenue,
+            'stores' => $stores,
         ]);
     }
 

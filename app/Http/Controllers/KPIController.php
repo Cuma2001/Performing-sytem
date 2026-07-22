@@ -35,4 +35,14 @@ class KPIController extends Controller
         return redirect()->route('kpis.index')
             ->with('success', 'KPI created successfully');
     }
+
+    public function distribution()
+    {
+        return view('kpis.distribution');
+    }
+
+    public function upload()
+    {
+        return view('kpis.upload');
+    }
 }

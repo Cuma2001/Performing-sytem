@@ -1,16 +1,17 @@
 <?php
-// app/Models/StoreTarget.php
+// app/Models/SupervisorTarget.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class StoreTarget extends Model
+class SupervisorTarget extends Model
 {
-    protected $table = 'store_targets';
+    protected $table = 'supervisor_targets';
 
     protected $fillable = [
+        'supervisor_code',
         'store_code',
         'target',
         'month',

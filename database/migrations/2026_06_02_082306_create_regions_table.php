@@ -1,4 +1,5 @@
 <?php
+// database/migrations/2026_06_26_000000_create_regions_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -6,37 +7,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-       Schema::create('regions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100);
-            $table->string('code', 20)->unique();
-            $table->string('country', 100)->nullable();
-            $table->string('city', 100)->nullable();
-            $table->string('state', 100)->nullable();
-            $table->string('zip_code', 20)->nullable();
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
-            $table->text('address')->nullable();
-            $table->string('phone', 20)->nullable();
-            $table->string('email', 100)->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->index('code');
-            $table->index('is_active');
-            $table->index('country');
-        });
+        Schema::create('regions', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('code')->unique();
+    $table->text('description')->nullable();
+    $table->boolean('is_active')->default(true); // Default to true
+    $table->timestamps();
+});
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('regions');
     }

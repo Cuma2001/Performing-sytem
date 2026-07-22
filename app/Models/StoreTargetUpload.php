@@ -1,4 +1,5 @@
 <?php
+// app/Models/StoreTargetUpload.php
 
 namespace App\Models;
 
@@ -15,6 +16,7 @@ class StoreTargetUpload extends Model
         'original_filename',
         'file_path',
         'file_hash',
+        'type',
         'total_records',
         'processed_records',
         'success_records',
