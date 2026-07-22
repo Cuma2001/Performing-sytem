@@ -11,7 +11,7 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-    
+
     <style>
         :root {
             --primary-red: #e5222b;
@@ -533,7 +533,7 @@
 
         <ul class="nav-menu">
             <!-- Dashboard Section -->
-           
+
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="fas fa-tachometer-alt"></i>
@@ -543,7 +543,7 @@
 
             <!-- Management Section - CEO/HR & Superadmin only -->
             @if(in_array($roleName, ['Superadmin', 'CEO/HR']))
-             
+
                 <li class="nav-item">
                     <a href="{{ route('regions.index') }}" class="nav-link {{ request()->routeIs('regions.*') ? 'active' : '' }}">
                         <i class="fas fa-map-marker-alt"></i>
@@ -587,20 +587,20 @@
             @endif
 
             <!-- Utility Section -->
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{ route('utilities.index') }}" class="nav-link {{ request()->routeIs('utilities.*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span>Utilities</span>
                 </a>
-            </li>
+            </li> -->
 
             <!-- Reports Section -->
-            <!--<li class="nav-item">
+            <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
                     <span>Reports</span>
                 </a>
-            </li>-->
+            </li>
         </ul>
     </nav>
 
