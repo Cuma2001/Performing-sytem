@@ -88,12 +88,18 @@
                 </div>
                 <div class="col-md-6" style="margin-bottom: 16px;">
                     <label for="store_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Store <span style="color: red;">*</span></label>
-                    <select name="store_id" id="store_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                        <option value="">Select Store</option>
-                        @foreach($stores as $store)
-                            <option value="{{ $store->id }}" {{ old('store_id') == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-                        @endforeach
-                    </select>
+                    @if($managedStore)
+                        <input type="text" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" value="{{ $managedStore->name }}" readonly>
+                        <input type="hidden" name="store_id" value="{{ $managedStore->id }}">
+                        <small class="text-muted">Assigned automatically from your managed store.</small>
+                    @else
+                        <select name="store_id" id="store_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                            <option value="">Select Store</option>
+                            @foreach($stores as $store)
+                                <option value="{{ $store->id }}" {{ old('store_id') == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                     @error('store_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
             </div>
@@ -101,12 +107,18 @@
             <div class="row">
                 <div class="col-md-6" style="margin-bottom: 16px;">
                     <label for="region_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Region <span style="color: red;">*</span></label>
-                    <select name="region_id" id="region_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                        <option value="">Select Region</option>
-                        @foreach(\App\Models\Region::all() as $region)
-                            <option value="{{ $region->id }}" {{ old('region_id') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
-                        @endforeach
-                    </select>
+                    @if($managedStore)
+                        <input type="text" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" value="{{ $managedStore->region?->name ?? 'No region assigned' }}" readonly>
+                        <input type="hidden" name="region_id" value="{{ $managedStore->region_id }}">
+                        <small class="text-muted">Assigned automatically from your managed store.</small>
+                    @else
+                        <select name="region_id" id="region_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                            <option value="">Select Region</option>
+                            @foreach(\App\Models\Region::all() as $region)
+                                <option value="{{ $region->id }}" {{ old('region_id') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
+                            @endforeach
+                        </select>
+                    @endif
                     @error('region_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-6" style="margin-bottom: 16px;">

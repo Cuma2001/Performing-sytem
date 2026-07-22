@@ -20,16 +20,26 @@ class EmployeeController extends Controller
 
     public function create()
     {
+        $managedStore = $this->managedStore();
         $stores = Store::all();
         $users = User::all();
         $managers = Employee::all();
 
-        return view('employees.create', compact('stores', 'users', 'managers'));
+        return view('employees.create', compact('stores', 'users', 'managers', 'managedStore'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        // A store manager may only add employees to the store they manage.  Set
+        // both values on the server so submitted form values cannot override them.
+        if ($managedStore = $this->managedStore()) {
+            $request->merge([
+                'store_id' => $managedStore->id,
+                'region_id' => $managedStore->region_id,
+            ]);
+        }
+
+        $validated = $request->validate([
             'employee_code' => 'required|string|max:50|unique:employees,employee_code',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -51,9 +61,10 @@ class EmployeeController extends Controller
             'commission_rate' => 'nullable|numeric|min:0|max:100',
             'bonus_rate' => 'nullable|numeric|min:0|max:100',
             'status' => 'required|in:active,inactive,terminated,on_leave',
+            'notes' => 'nullable|string',
         ]);
 
-        Employee::create($request->all());
+        Employee::create($validated);
 
         return redirect()->route('employees.index')
             ->with('success', 'Employee created successfully!');
@@ -111,5 +122,14 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')
             ->with('success', 'Employee deleted successfully!');
+    }
+
+    private function managedStore(): ?Store
+    {
+        $userId = auth()->id();
+
+        return $userId
+            ? Store::where('manager_id', $userId)->first()
+            : null;
     }
 }

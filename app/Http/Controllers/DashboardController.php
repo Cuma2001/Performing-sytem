@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KPI;
+use App\Models\Employee;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -19,14 +19,14 @@ class DashboardController extends Controller
 
         // Get user's role name
         $role = DB::table('roles')->find($user->role_id);
-        $roleName = $role?->name ?? 'Guest';
+        $roleName = $role?->name ?? $user->role ?? 'Guest';
 
         // Route to role-specific dashboard
-        if (in_array($roleName, ['Superadmin', 'CEO/HR'])) {
+        if (in_array(strtolower($roleName), ['superadmin', 'ceo/hr', 'ceo', 'hr', 'admin'])) {
             return $this->ceoHrDashboard($user);
-        } elseif ($roleName === 'Supervisor') {
+        } elseif (strtolower($roleName) === 'supervisor') {
             return $this->supervisorDashboard($user);
-        } elseif ($roleName === 'Salesperson') {
+        } elseif (strtolower($roleName) === 'salesperson') {
             return $this->salespersonDashboard($user);
         }
 
@@ -34,7 +34,7 @@ class DashboardController extends Controller
         return view('dashboard');
     }
 
-    private function ceoHrDashboard($user)
+    public function ceoHrDashboard($user = null)
     {
         // Get overview data for CEO/HR
         $totalUsers = User::count();
@@ -53,59 +53,77 @@ class DashboardController extends Controller
     }
 
     public function supervisorDashboard($user = null)
-{
-    if (!$user) {
-        $user = auth()->user();
-    }
-    
-    // Get store-specific data for Supervisor
-    $userStore = $user->store_id ? Store::find($user->store_id) : null;
-    $storeTarget = $user->store_id ? DB::table('store_targets')->where('store_id', $user->store_id)->first() : null;
-    $storePerformance = $user->store_id ? DB::table('store_performance')->where('store_id', $user->store_id)->first() : null;
-    $teamMembers = User::where('store_id', $user->store_id)->count();
-    
-    // Get team performance data with KPI scores
-    $teamPerformance = DB::table('users')
-        ->leftJoin('sales_records', 'users.id', '=', 'sales_records.employee_id')
-        ->select(
-            'users.id', 
-            'users.name', 
-            DB::raw('COALESCE(SUM(sales_records.amount), 0) as total_revenue'), 
-            DB::raw('COUNT(sales_records.id) as sales_count'),
-            DB::raw('COALESCE(SUM(sales_records.amount) / 1000, 0) as kpi_score')
-        )
-        ->where('users.store_id', $user->store_id)
-        ->where('users.role_id', 4) // Salesperson role
-        ->groupBy('users.id', 'users.name')
-        ->orderBy('total_revenue', 'desc')
-        ->get();
-        
-    // Calculate store rank among all stores
-    $storeRank = DB::table('store_performance')
-        ->where('month', date('Y-m'))
-        ->orderBy('kpi_score', 'desc')
-        ->pluck('store_id')
-        ->search($user->store_id) + 1;
-        
-    $totalStores = DB::table('stores')->count();
-    
-    
-    
-    // Generate alerts based on performance
-    $alerts = [];
-    if (($storePerformance->kpi_score ?? 92.5) < 85) {
-        $alerts[] = 'Store KPI is below 85% - Immediate action required';
-    }
-    if (($storePerformance->sales_kpi ?? 0) < 80) {
-        $alerts[] = 'Sales KPI is underperforming - Team coaching recommended';
-    }
-    
-    // Count active team members (with sales in current month)
-    $activeTeamMembers = DB::table('sales_records')
-        ->whereIn('employee_id', User::where('store_id', $user->store_id)->pluck('id'))
-        ->whereMonth('created_at', date('m'))
-        ->distinct('employee_id')
-        ->count('employee_id');
+    {
+        $user ??= auth()->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $now = now();
+        $userStore = $user->store_id ? Store::find($user->store_id) : null;
+        $storeTarget = $userStore
+            ? DB::table('store_targets')
+                ->where('store_code', $userStore->code)
+                ->where('target_year', $now->year)
+                ->first()
+            : null;
+
+        if ($storeTarget) {
+            $storeTarget->monthly_target = (float) ($storeTarget->{'target_'.strtolower($now->format('M'))} ?? 0);
+        }
+
+        $storePerformance = $userStore
+            ? DB::table('store_performance')
+                ->where('store_id', $userStore->id)
+                ->where('year', $now->year)
+                ->where('month', $now->month)
+                ->latest('id')
+                ->first()
+            : null;
+
+        if ($storePerformance) {
+            $storePerformance->kpi_score = (float) $storePerformance->achievement_percentage;
+            $storePerformance->progress = (float) $storePerformance->achievement_percentage;
+            $storePerformance->sales_kpi = (float) $storePerformance->achievement_percentage;
+        }
+
+        $teamMembers = $userStore ? Employee::where('store_id', $userStore->id)->where('is_active', true)->count() : 0;
+        $teamPerformance = $userStore
+            ? DB::table('employees')
+                ->leftJoin('sales_records', function ($join) use ($now) {
+                    $join->on('employees.id', '=', 'sales_records.employee_id')
+                        ->whereYear('sales_records.sale_date', $now->year)
+                        ->whereMonth('sales_records.sale_date', $now->month);
+                })
+                ->where('employees.store_id', $userStore->id)
+                ->where('employees.is_active', true)
+                ->select('employees.id', 'employees.first_name as name', DB::raw('COALESCE(SUM(sales_records.amount), 0) as total_revenue'), DB::raw('COUNT(sales_records.id) as sales_count'), DB::raw('COALESCE(SUM(sales_records.amount) / 1000, 0) as kpi_score'))
+                ->groupBy('employees.id', 'employees.first_name')
+                ->orderByDesc('total_revenue')
+                ->get()
+            : collect();
+
+        $rankedStoreIds = DB::table('store_performance')
+            ->where('year', $now->year)
+            ->where('month', $now->month)
+            ->whereNotNull('store_id')
+            ->select('store_id', DB::raw('AVG(achievement_percentage) as score'))
+            ->groupBy('store_id')
+            ->orderByDesc('score')
+            ->pluck('store_id');
+        $rankIndex = $userStore ? $rankedStoreIds->search($userStore->id, true) : false;
+        $storeRank = $rankIndex === false ? null : $rankIndex + 1;
+        $totalStores = Store::count();
+
+        $alerts = [];
+        if ($storePerformance && $storePerformance->kpi_score < 85) {
+            $alerts[] = 'Store KPI is below 85% - Immediate action required';
+        }
+
+        $activeTeamMembers = $userStore
+            ? DB::table('sales_records')->where('store_id', $userStore->id)->whereYear('sale_date', $now->year)->whereMonth('sale_date', $now->month)->distinct()->count('employee_id')
+            : 0;
 
     return view('dashboards.dashboard-supervisor', [
         'userStore' => $userStore,
@@ -118,15 +136,23 @@ class DashboardController extends Controller
         'alerts' => $alerts,
         'activeTeamMembers' => $activeTeamMembers,
     ]);
-}
-    private function salespersonDashboard($user)
+    }
+
+    public function salespersonDashboard($user = null)
     {
+        $user ??= auth()->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $employeeId = Employee::where('user_id', $user->id)->value('id');
         // Get personal sales data for Salesperson
-        $personalSalesRecords = DB::table('sales_records')->where('employee_id', $user->id)->count();
-        $personalRevenue = DB::table('sales_records')->where('employee_id', $user->id)->sum('amount') ?? 0;
+        $personalSalesRecords = $employeeId ? DB::table('sales_records')->where('employee_id', $employeeId)->count() : 0;
+        $personalRevenue = $employeeId ? DB::table('sales_records')->where('employee_id', $employeeId)->sum('amount') : 0;
         $userStore = $user->store_id ? Store::find($user->store_id) : null;
         $recentSales = DB::table('sales_records')
-            ->where('employee_id', $user->id)
+            ->where('employee_id', $employeeId ?? 0)
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
