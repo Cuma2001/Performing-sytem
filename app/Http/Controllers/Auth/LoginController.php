@@ -61,16 +61,24 @@ class LoginController extends Controller
      */
     private function redirectByRole($user)
     {
-        switch ($user->role) {
+        $roleName = $user->role ?? optional(
+            $user->role_id ? \Illuminate\Support\Facades\DB::table('roles')->find($user->role_id) : null
+        )->name;
 
-            case 'admin':
-                return redirect()->route('admin.dashboard');
+        $normalizedRole = strtolower(trim((string) $roleName));
 
-            case 'manager':
-                return redirect()->route('manager.dashboard');
+        switch ($normalizedRole) {
+            case 'ceo/hr':
+            case 'ceo':
+            case 'hr':
+            case 'superadmin':
+                return redirect()->route('dashboard.ceo-hr');
 
-            case 'staff':
-                return redirect()->route('staff.dashboard');
+            case 'supervisor':
+                return redirect()->route('dashboard.supervisor');
+
+            case 'salesperson':
+                return redirect()->route('dashboard.salesperson');
 
             default:
                 return redirect()->route('dashboard');

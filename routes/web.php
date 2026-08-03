@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\StoreTargetUploadController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\KPIController;
@@ -125,6 +128,40 @@ Route::middleware(['auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+// Registration
+Route::middleware(['guest'])->group(function () {
+    Route::get('register', [RegisterController::class, 'showRegisterForm'])->name('register');
+    Route::post('register', [RegisterController::class, 'register'])->name('register.store');
+    
+    // Login
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [LoginController::class, 'login'])->name('login.store');
+});
+
+// Logout
+Route::post('logout', [LoginController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
+
+/*
+|--------------------------------------------------------------------------
+| Password Reset Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['guest'])->group(function () {
+    Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('forgot-password');
+    Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('password/reset/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/reset', [ForgotPasswordController::class, 'reset'])->name('password.update');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Profile Routes (Protected)
 |--------------------------------------------------------------------------
 */
@@ -133,9 +170,6 @@ Route::middleware('auth')->prefix('profile')->group(function () {
     Route::patch('/', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-// Authentication, password management, and email verification routes.
-require __DIR__.'/auth.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -174,4 +208,5 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export', [UserController::class, 'export'])->name('export');
     });
 });
+
 

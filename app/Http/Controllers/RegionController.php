@@ -29,7 +29,7 @@ class RegionController extends Controller
         ]);
 
         // Ensure is_active is properly set as boolean
-        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_active'] = $request->boolean('is_active');
 
         Region::create($validated);
 
@@ -53,7 +53,7 @@ class RegionController extends Controller
         ]);
 
         // Ensure is_active is properly set as boolean
-        $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_active'] = $request->boolean('is_active');
 
         $region->update($validated);
 

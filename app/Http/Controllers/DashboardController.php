@@ -17,21 +17,36 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        // Get user's role name
         $role = DB::table('roles')->find($user->role_id);
         $roleName = $role?->name ?? $user->role ?? 'Guest';
 
-        // Route to role-specific dashboard
-        if (in_array(strtolower($roleName), ['superadmin', 'ceo/hr', 'ceo', 'hr', 'admin'])) {
-            return $this->ceoHrDashboard($user);
-        } elseif (strtolower($roleName) === 'supervisor') {
-            return $this->supervisorDashboard($user);
-        } elseif (strtolower($roleName) === 'salesperson') {
-            return $this->salespersonDashboard($user);
+        $dashboardKey = $this->resolveDashboardKey($roleName);
+
+        return match ($dashboardKey) {
+            'ceo-hr' => $this->ceoHrDashboard($user),
+            'supervisor' => $this->supervisorDashboard($user),
+            'salesperson' => $this->salespersonDashboard($user),
+            default => $this->ceoHrDashboard($user),
+        };
+    }
+
+    public function resolveDashboardKey($roleName): string
+    {
+        $normalizedRole = strtolower(trim((string) $roleName));
+
+        if (in_array($normalizedRole, ['superadmin', 'ceo/hr', 'ceo', 'hr', 'chief executive officer', 'chief executive'])) {
+            return 'ceo-hr';
         }
 
-        // Fallback to generic dashboard
-        return view('dashboard');
+        if ($normalizedRole === 'supervisor') {
+            return 'supervisor';
+        }
+
+        if ($normalizedRole === 'salesperson') {
+            return 'salesperson';
+        }
+
+        return 'ceo-hr';
     }
 
     public function ceoHrDashboard($user = null)

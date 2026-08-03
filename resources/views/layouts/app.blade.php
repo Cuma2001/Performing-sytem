@@ -29,8 +29,10 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #f5f7fb;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef4f8 100%);
+            color: #123041;
             overflow-x: hidden;
+            line-height: 1.5;
         }
 
         /* Sidebar Styles */
@@ -54,6 +56,37 @@
             margin-bottom: 16px;
         }
 
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+        }
+
+        .brand-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.65);
+        }
+
         .sidebar-header .logo {
             width: 180px;
             margin-bottom: 8px;
@@ -62,7 +95,22 @@
         .sidebar-header p {
             font-size: 0.75rem;
             color: rgba(255,255,255,0.6);
-            margin-top: 4px;
+            margin-top: 8px;
+        }
+
+        .sidebar-role-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.1);
+            color: #f8fafc;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .nav-menu {
@@ -130,6 +178,106 @@
             transition: all 0.3s ease;
         }
 
+        .page-wrapper {
+            padding: 24px 32px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .page-hero {
+            background: linear-gradient(135deg, rgba(29, 105, 136, 0.12), rgba(244, 198, 16, 0.16));
+            border: 1px solid rgba(29, 105, 136, 0.12);
+            border-radius: 20px;
+            padding: 24px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .page-hero__eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.74rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--primary-teal);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-hero__title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: #123041;
+            margin-bottom: 6px;
+        }
+
+        .page-hero__text {
+            color: #5b6b79;
+            margin: 0;
+            max-width: 700px;
+        }
+
+        .page-hero__meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-pill {
+            background: white;
+            color: #123041;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: 0 6px 16px rgba(18, 48, 65, 0.08);
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 14px 32px rgba(15, 30, 44, 0.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eef2f7;
+            background: linear-gradient(90deg, #fdfefe, #f7fbfd);
+        }
+
+        .card-header--flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #123041;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 0.84rem;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
         /* Top Bar */
         .top-bar {
             background: white;
@@ -153,6 +301,21 @@
         .top-bar .page-title small {
             color: #6c757d;
             font-size: 0.8rem;
+        }
+
+        .top-bar .page-title .page-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: var(--primary-teal);
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
 
         .top-bar .user-info {
@@ -201,12 +364,13 @@
             background: #c41e26;
         }
 
-        /* Page Content Wrapper */
-        .page-wrapper {
-            padding: 24px 32px;
+        /* Stats Cards */
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        /* Stats Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -291,6 +455,10 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.9rem;
+        }
+
+        .table-hover tr:hover {
+            background: #f8fafc;
         }
 
         .table th,
@@ -515,6 +683,7 @@
             border-radius: 10px;
         }
     </style>
+    @yield('styles')
     @stack('styles')
 </head>
 <body>
@@ -529,11 +698,38 @@
             $user = auth()->user();
             $role = $user ? DB::table('roles')->find($user->role_id) : null;
             $roleName = $role ? $role->name : 'Guest';
+            $routeName = request()->route()?->getName();
+            $pageTitle = trim($__env->yieldContent('page-title')) ?: trim($__env->yieldContent('page_title')) ?: 'Dashboard';
+            $pageSubtitle = trim($__env->yieldContent('page-subtitle')) ?: trim($__env->yieldContent('page_subtitle')) ?: 'Performance Management System';
+
+            $pageMetaMap = [
+                'dashboard' => ['Dashboard', 'Overview of performance, people, and operations'],
+                'regions.index' => ['Regions', 'Manage regional structure and coverage'],
+                'regions.create' => ['Create Region', 'Add a new operating region'],
+                'regions.edit' => ['Edit Region', 'Revise regional settings and details'],
+                'stores.index' => ['Stores', 'Maintain store locations and assignments'],
+                'stores.create' => ['Create Store', 'Add a new store profile'],
+                'stores.edit' => ['Edit Store', 'Update store information'],
+                'users.index' => ['Users', 'Manage accounts and user responsibilities'],
+                'users.create' => ['Create User', 'Add a new system user'],
+                'users.edit' => ['Edit User', 'Update access and role details'],
+                'employees.index' => ['Employees', 'Track employee records and status'],
+                'employees.create' => ['Create Employee', 'Add a new team member'],
+                'employees.edit' => ['Edit Employee', 'Update employee details'],
+                'employees.show' => ['Employee Profile', 'Review role, store, and status'],
+                'kpi.distribution' => ['KPI Distribution', 'Review KPI allocation and coverage'],
+                'kpi.upload' => ['KPI Upload', 'Import and manage KPI data'],
+                'utilities.index' => ['Utilities', 'Support tools and operational maintenance'],
+                'reports.index' => ['Reports', 'View summaries and reporting outputs'],
+            ];
+
+            if ($routeName && isset($pageMetaMap[$routeName])) {
+                [$pageTitle, $pageSubtitle] = $pageMetaMap[$routeName];
+            }
         @endphp
 
         <ul class="nav-menu">
-            <!-- Dashboard Section -->
-
+            <li class="nav-section-title">Overview</li>
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                     <i class="fas fa-tachometer-alt"></i>
@@ -541,9 +737,8 @@
                 </a>
             </li>
 
-            <!-- Management Section - CEO/HR & Superadmin only -->
             @if(in_array($roleName, ['Superadmin', 'CEO/HR']))
-
+                <li class="nav-section-title">People & Operations</li>
                 <li class="nav-item">
                     <a href="{{ route('regions.index') }}" class="nav-link {{ request()->routeIs('regions.*') ? 'active' : '' }}">
                         <i class="fas fa-map-marker-alt"></i>
@@ -570,8 +765,8 @@
                 </li>
             @endif
 
-            <!-- KPI Section - Superadmin & Supervisor only -->
             @if(in_array($roleName, ['Superadmin', 'Supervisor']))
+                <li class="nav-section-title">Performance</li>
                 <li class="nav-item">
                     <a href="{{ route('kpi.distribution') }}" class="nav-link {{ request()->routeIs('kpi.distribution') ? 'active' : '' }}">
                         <i class="fas fa-chart-pie"></i>
@@ -586,15 +781,13 @@
                 </li>
             @endif
 
-            <!-- Utility Section -->
-            <!-- <li class="nav-item">
+            <li class="nav-section-title">Support</li>
+            <li class="nav-item">
                 <a href="{{ route('utilities.index') }}" class="nav-link {{ request()->routeIs('utilities.*') ? 'active' : '' }}">
                     <i class="fas fa-cog"></i>
                     <span>Utilities</span>
                 </a>
-            </li> -->
-
-            <!-- Reports Section -->
+            </li>
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>
@@ -609,8 +802,9 @@
         <!-- Top Bar -->
         <header class="top-bar">
             <div class="page-title">
-                <h1>@yield('page-title', 'Dashboard')</h1>
-                <small>@yield('page-subtitle', 'Performance Management System')</small>
+                <h1>{{ $pageTitle }}</h1>
+                <small>{{ $pageSubtitle }}</small>
+                <div class="page-badge"><i class="fas fa-layer-group"></i> {{ $roleName }}</div>
             </div>
             <div class="user-info">
                 <div>
@@ -669,6 +863,7 @@
         });
     </script>
 
+    @yield('scripts')
     @stack('scripts')
 </body>
 </html>

@@ -17,12 +17,11 @@ class ForgotPasswordController extends Controller
 {
     public function showLinkRequestForm()
     {
-        return view('auth.forgotPassword');
+        return view('auth.forgot-password');
     }
 
     public function sendResetLinkEmail(Request $request)
     {
-        // Validate email
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'exists:users,email'],
         ]);
@@ -31,51 +30,47 @@ class ForgotPasswordController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // Generate token
-        $token = Str::random(64);
         $email = $request->email;
-        $userId = User::where('email', $email)->value('id');
+        $token = Str::random(64);
 
-        // Save token to DB
-        DB::table('password_resets')->updateOrInsert(
+        DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $email],
             ['token' => $token, 'created_at' => Carbon::now()]
         );
 
-        // Send reset email
-        $link = route('password.reset.form', ['id' => $userId, 'token' => $token]);
+        $link = route('password.reset', ['token' => $token]);
         Mail::to($email)->send(new ForgotPasswordMail($link));
 
-        return back()->with('success', 'A password reset link has been sent to your email.');
+        return back()->with('status', 'A password reset link has been sent to your email.');
     }
 
-    public function showResetForm($id, $token)
+    public function showResetForm(string $token)
     {
-        $resetRecord = DB::table('password_resets')->where('token', $token)->first();
+        $resetRecord = DB::table('password_reset_tokens')->where('token', $token)->first();
 
-        if (!$resetRecord) {
-            return redirect()->route('password.request')->withErrors('Invalid or expired token.');
+        if (! $resetRecord) {
+            return redirect()->route('password.request')->withErrors(['token' => 'Invalid or expired token.']);
         }
 
         $createdAt = Carbon::parse($resetRecord->created_at);
-        if (Carbon::now()->diffInMinutes($createdAt) > 10) {
-            return redirect()->route('password.request')->withErrors('Token expired. Please request a new one.');
+        if (Carbon::now()->diffInMinutes($createdAt) > 60) {
+            return redirect()->route('password.request')->withErrors(['token' => 'Token expired. Please request a new one.']);
         }
 
-        return view('auth.forgotPassword', [
+        return view('auth.forgot-password', [
             'email' => $resetRecord->email,
-            'token' => $token
+            'token' => $token,
         ]);
     }
 
-    public function resetPassword(Request $request)
+    public function reset(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'exists:users,email'],
             'password' => [
                 'required', 'confirmed', 'min:8',
-                'regex:/[a-z]/', 'regex:/[A-Z]/', 
-                'regex:/[0-9]/', 'regex:/[@$!%*#?&]/'
+                'regex:/[a-z]/', 'regex:/[A-Z]/',
+                'regex:/[0-9]/', 'regex:/[@$!%*#?&]/',
             ],
             'token' => ['required'],
         ]);
@@ -84,12 +79,21 @@ class ForgotPasswordController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
+        $resetRecord = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (! $resetRecord) {
+            return redirect()->route('password.request')->withErrors(['token' => 'Invalid or expired token.']);
+        }
+
         $user = User::where('email', $request->email)->first();
         $user->password = bcrypt($request->password);
         $user->save();
 
-        DB::table('password_resets')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('success', 'Your password has been reset. You may now log in.');
+        return redirect()->route('login')->with('status', 'Your password has been reset. You may now log in.');
     }
 }

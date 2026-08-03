@@ -26,52 +26,107 @@
                     <img src="{{asset('assets/images/img-01.png')}}" alt="IMG">
                 </div>
 
-                <form class="login100-form validate-form" id="forgotForm" action="{{ route('password.email') }}" method="POST">
-                    @csrf
-                    <div class="login100-pic js-tilt" data-tilt>
-                        <img style="width: 300px" src="{{asset('assets/images/logo.png')}}" alt="IMG">
-                    </div>
-
-                    <span class="login100-form-title">
-                        Forgot Password
-                    </span>
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
+                @if (!empty($token))
+                    <form class="login100-form validate-form" action="{{ route('password.update') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="token" value="{{ $token }}">
+                        <div class="login100-pic js-tilt" data-tilt>
+                            <img style="width: 300px" src="{{asset('assets/images/logo.png')}}" alt="IMG">
                         </div>
-                    @endif
 
-                    @if (session('status'))
-                        <div class="alert alert-success alert-dismissible">
-                            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                            <p>{{ session('status') }}</p>
-                        </div>
-                    @endif
-
-                    <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
-                        <input class="input100" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
-                        <span class="focus-input100"></span>
-                        <span class="symbol-input100">
-                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <span class="login100-form-title">
+                            Reset Password
                         </span>
-                    </div>
 
-                    <div class="container-login100-form-btn">
-                        <button style="background-color: rgba(29, 105, 136)" type="submit" id="btnSubmit" class="login100-form-btn">
-                            Send Reset Link
-                        </button>
-                    </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
 
-                    <div class="text-center p-t-12">
-                        <a class="txt2" href="{{ route('login') }}">Back to Login</a>
-                    </div>
-                </form>
+                        <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                            <input class="input100" type="email" name="email" placeholder="Email" value="{{ $email ?? old('email') }}" required>
+                            <span class="focus-input100"></span>
+                            <span class="symbol-input100">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                            </span>
+                        </div>
+
+                        <div class="wrap-input100 validate-input" data-validate="Password is required">
+                            <input class="input100" type="password" name="password" placeholder="New Password" required>
+                            <span class="focus-input100"></span>
+                            <span class="symbol-input100">
+                                <i class="fa fa-lock" aria-hidden="true"></i>
+                            </span>
+                        </div>
+
+                        <div class="wrap-input100 validate-input" data-validate="Please confirm your password">
+                            <input class="input100" type="password" name="password_confirmation" placeholder="Confirm Password" required>
+                            <span class="focus-input100"></span>
+                            <span class="symbol-input100">
+                                <i class="fa fa-lock" aria-hidden="true"></i>
+                            </span>
+                        </div>
+
+                        <div class="container-login100-form-btn">
+                            <button style="background-color: rgba(29, 105, 136)" type="submit" class="login100-form-btn">
+                                Reset Password
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <form class="login100-form validate-form" id="forgotForm" action="{{ route('password.email') }}" method="POST">
+                        @csrf
+                        <div class="login100-pic js-tilt" data-tilt>
+                            <img style="width: 300px" src="{{asset('assets/images/logo.png')}}" alt="IMG">
+                        </div>
+
+                        <span class="login100-form-title">
+                            Forgot Password
+                        </span>
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger alert-dismissible">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        @if (session('status'))
+                            <div class="alert alert-success alert-dismissible">
+                                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                <p>{{ session('status') }}</p>
+                            </div>
+                        @endif
+
+                        <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                            <input class="input100" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                            <span class="focus-input100"></span>
+                            <span class="symbol-input100">
+                                <i class="fa fa-envelope" aria-hidden="true"></i>
+                            </span>
+                        </div>
+
+                        <div class="container-login100-form-btn">
+                            <button style="background-color: rgba(29, 105, 136)" type="submit" id="btnSubmit" class="login100-form-btn">
+                                Send Reset Link
+                            </button>
+                        </div>
+
+                        <div class="text-center p-t-12">
+                            <a class="txt2" href="{{ route('login') }}">Back to Login</a>
+                        </div>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

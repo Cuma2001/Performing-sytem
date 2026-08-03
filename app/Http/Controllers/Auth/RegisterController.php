@@ -28,7 +28,7 @@ class RegisterController extends Controller
     {
         $availableRoles = DB::table('roles')->pluck('name')->toArray();
         if (empty($availableRoles)) {
-            $availableRoles = ['CEO', 'Supervisor', 'HR', 'Admin'];
+            $availableRoles = ['CEO/HR', 'Supervisor', 'Salesperson'];
         }
 
         $validator = Validator::make($request->all(), [

@@ -13,7 +13,7 @@ class Store extends Model
     protected $fillable = [
         'name',
         'code',
-        'region_id',
+        'region_id', // ✅ keep ONLY this
         'address',
         'city',
         'state',
@@ -23,6 +23,7 @@ class Store extends Model
         'longitude',
         'phone',
         'email',
+        'manager_name',
         'opening_time',
         'closing_time',
         'is_active',
@@ -68,7 +69,7 @@ class Store extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors (Optional but PRO)
+    | Accessors
     |--------------------------------------------------------------------------
     */
 

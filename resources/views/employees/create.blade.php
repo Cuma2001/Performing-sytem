@@ -21,8 +21,6 @@
                     <select name="status" id="status" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                         <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        <option value="on_leave" {{ old('status') === 'on_leave' ? 'selected' : '' }}>On Leave</option>
-                        <option value="terminated" {{ old('status') === 'terminated' ? 'selected' : '' }}>Terminated</option>
                     </select>
                 </div>
             </div>
@@ -80,47 +78,43 @@
                     <label for="employment_type" style="display: block; font-weight: 600; margin-bottom: 4px;">Employment Type <span style="color: red;">*</span></label>
                     <select name="employment_type" id="employment_type" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
                         <option value="full_time" {{ old('employment_type') === 'full_time' ? 'selected' : '' }}>Full Time</option>
-                        <option value="part_time" {{ old('employment_type') === 'part_time' ? 'selected' : '' }}>Part Time</option>
-                        <option value="contract" {{ old('employment_type') === 'contract' ? 'selected' : '' }}>Contract</option>
                         <option value="intern" {{ old('employment_type') === 'intern' ? 'selected' : '' }}>Intern</option>
                     </select>
                     @error('employment_type') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="store_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Store <span style="color: red;">*</span></label>
-                    @if($managedStore)
-                        <input type="text" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" value="{{ $managedStore->name }}" readonly>
-                        <input type="hidden" name="store_id" value="{{ $managedStore->id }}">
-                        <small class="text-muted">Assigned automatically from your managed store.</small>
-                    @else
-                        <select name="store_id" id="store_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                            <option value="">Select Store</option>
-                            @foreach($stores as $store)
-                                <option value="{{ $store->id }}" {{ old('store_id') == $store->id ? 'selected' : '' }}>{{ $store->name }}</option>
-                            @endforeach
-                        </select>
-                    @endif
-                    @error('store_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
-                </div>
-            </div>
+                <div class="row">
+    <div class="col-md-6" style="margin-bottom: 16px;">
+        <label for="store_id" style="display: block; font-weight: 600; margin-bottom: 4px;">
+            Store <span style="color: red;">*</span>
+        </label>
 
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="region_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Region <span style="color: red;">*</span></label>
-                    @if($managedStore)
-                        <input type="text" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;" value="{{ $managedStore->region?->name ?? 'No region assigned' }}" readonly>
-                        <input type="hidden" name="region_id" value="{{ $managedStore->region_id }}">
-                        <small class="text-muted">Assigned automatically from your managed store.</small>
-                    @else
-                        <select name="region_id" id="region_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
-                            <option value="">Select Region</option>
-                            @foreach(\App\Models\Region::all() as $region)
-                                <option value="{{ $region->id }}" {{ old('region_id') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
-                            @endforeach
-                        </select>
-                    @endif
-                    @error('region_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
-                </div>
+        @if($managedStore)
+            <input type="text" class="form-control"
+                   style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;"
+                   value="{{ $managedStore->name }}" readonly>
+
+            <input type="hidden" name="store_id" value="{{ $managedStore->id }}">
+
+            <small class="text-muted">Assigned automatically from your managed store.</small>
+        @else
+            <select name="store_id" id="store_id" class="form-control"
+                    style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;"
+                    required>
+                <option value="">Select Store</option>
+                @foreach($stores as $store)
+                    <option value="{{ $store->id }}"
+                        {{ old('store_id') == $store->id ? 'selected' : '' }}>
+                        {{ $store->name }}
+                    </option>
+                @endforeach
+            </select>
+        @endif
+
+        @error('store_id')
+            <span style="color: red; font-size: 0.85rem;">{{ $message }}</span>
+        @enderror
+    </div>
+</div>
                 <div class="col-md-6" style="margin-bottom: 16px;">
                     <label for="manager_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Manager</label>
                     <select name="manager_id" id="manager_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -132,53 +126,9 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="user_id" style="display: block; font-weight: 600; margin-bottom: 4px;">User</label>
-                    <select name="user_id" id="user_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <option value="">No User</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="hire_date" style="display: block; font-weight: 600; margin-bottom: 4px;">Hire Date <span style="color: red;">*</span></label>
-                    <input type="date" name="hire_date" id="hire_date" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required value="{{ old('hire_date') }}">
-                    @error('hire_date') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="termination_date" style="display: block; font-weight: 600; margin-bottom: 4px;">Termination Date</label>
-                    <input type="date" name="termination_date" id="termination_date" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('termination_date') }}">
-                </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="base_salary" style="display: block; font-weight: 600; margin-bottom: 4px;">Base Salary</label>
-                    <input type="number" name="base_salary" id="base_salary" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('base_salary') }}" step="0.01">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="commission_rate" style="display: block; font-weight: 600; margin-bottom: 4px;">Commission Rate (%)</label>
-                    <input type="number" name="commission_rate" id="commission_rate" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('commission_rate') }}" step="0.01" min="0" max="100">
-                </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="bonus_rate" style="display: block; font-weight: 600; margin-bottom: 4px;">Bonus Rate (%)</label>
-                    <input type="number" name="bonus_rate" id="bonus_rate" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('bonus_rate') }}" step="0.01" min="0" max="100">
-                </div>
-            </div>
-
             <div style="margin-bottom: 16px;">
                 <label for="address" style="display: block; font-weight: 600; margin-bottom: 4px;">Address</label>
                 <textarea name="address" id="address" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" rows="3">{{ old('address') }}</textarea>
-            </div>
-
-            <div style="margin-bottom: 16px;">
-                <label for="notes" style="display: block; font-weight: 600; margin-bottom: 4px;">Notes</label>
-                <textarea name="notes" id="notes" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" rows="3">{{ old('notes') }}</textarea>
             </div>
 
             <div style="display: flex; gap: 12px;">
@@ -188,4 +138,19 @@
         </form>
     </div>
 </div>
+
+<script>
+    function updateRegion() {
+        let storeSelect = document.getElementById('store_id');
+        let selectedOption = storeSelect.options[storeSelect.selectedIndex];
+        let region = selectedOption.getAttribute('data-region');
+
+        document.getElementById('region').value = region ? region : '';
+    }
+
+    document.getElementById('store_id').addEventListener('change', updateRegion);
+
+    // Run on page load (for old values)
+    window.onload = updateRegion;
+</script>
 @endsection

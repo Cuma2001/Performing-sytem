@@ -100,7 +100,7 @@
                 <label style="display: block; font-weight: 600; margin-bottom: 4px;">Status</label>
                 <div style="display: flex; gap: 16px;">
                     <label>
-                        <input type="checkbox" name="is_active" id="is_active" checked> Active
+                        <input type="checkbox" name="is_active" id="is_active" value="1" checked> Active
                     </label>
                 </div>
             </div>

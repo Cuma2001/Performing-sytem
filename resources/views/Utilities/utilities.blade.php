@@ -1,9 +1,9 @@
 {{-- resources/views/admin/utility/master-upload.blade.php --}}
-@extends('layouts.main')
+@extends('layouts.app')
 
 @section('title', 'Master Spreadsheet Upload Utility')
-@section('page_title', 'Master Data Upload Utility')
-@section('page_subtitle', 'Bulk upload sales records, commissions, or employee data')
+@section('page-title', 'Master Data Upload Utility')
+@section('page-subtitle', 'Bulk upload sales records, commissions, or employee data')
 
 @section('styles')
 <style>
