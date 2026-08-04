@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['store'])->latest()->get();
+        $users = User::with(['store'])->latest()->paginate(15);
         return view('users.index', compact('users'));
     }
 
@@ -27,7 +27,7 @@ class UserController extends Controller
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
         'phone' => 'nullable|string|max:20',
-        'id_no' => 'nullable|string|max:20',
+        'id_no' => 'nullable|string|max:20|unique:users,id_no',
         'role' => 'required|string|in:Superadmin,CEO/HR,Supervisor,Salesperson',
         'store_id' => 'nullable|exists:stores,id',
         'password' => 'required|string|min:8|confirmed',
@@ -65,7 +65,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
-            'id_no' => 'nullable|string|max:20',
+            'id_no' => 'nullable|string|max:20|unique:users,id_no,'.$user->id,
             'role' => 'required|string|in:Superadmin,CEO/HR,Supervisor,Salesperson',
             'store_id' => 'nullable|exists:stores,id',
             'password' => 'nullable|string|min:8|confirmed',

@@ -4,19 +4,6 @@
 @section('page-subtitle', 'Maintain staff records and keep the team visible')
 
 @section('content')
-    <div class="page-hero">
-        <div>
-            <div class="page-hero__eyebrow"><i class="fas fa-users"></i> Team oversight</div>
-            <h2 class="page-hero__title">Employee directory</h2>
-            <p class="page-hero__text">Keep staff records clear, searchable and ready for follow-up with a more structured view.</p>
-        </div>
-        <div class="page-hero__meta">
-            <div class="info-pill"><i class="fas fa-users"></i> {{ $employees->count() }} total</div>
-            <div class="info-pill"><i class="fas fa-check-circle"></i> {{ $employees->where('status', 'active')->count() }} active</div>
-            <a href="{{ route('employees.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Add employee</a>
-        </div>
-    </div>
-
     <div class="card">
         <div class="card-header card-header--flex">
             <div>
@@ -80,6 +67,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <div style="margin-top: 16px;">
+                    {{ $employees->links() }}
                 </div>
             @endif
         </div>

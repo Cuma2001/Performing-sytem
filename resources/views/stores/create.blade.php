@@ -25,18 +25,15 @@
 
             <div class="row">
                 <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="region" style="display: block; font-weight: 600; margin-bottom: 4px;">Region</label>
-                    <input type="text" name="region" id="region" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('region') }}">
-                </div>
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="store_type" style="display: block; font-weight: 600; margin-bottom: 4px;">Store Type</label>
-                    <select name="store_type" id="store_type" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <option value="">Select Type</option>
-                        <option value="Franchise" {{ old('store_type') === 'Franchise' ? 'selected' : '' }}>Franchise</option>
-                        <option value="Company Owned" {{ old('store_type') === 'Company Owned' ? 'selected' : '' }}>Company Owned</option>
+                    <label for="region_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Region <span style="color: red;">*</span></label>
+                    <select name="region_id" id="region_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                        <option value="">Select Region</option>
+                        @foreach($regions as $region)
+                            <option value="{{ $region->id }}" {{ old('region_id') == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
+                        @endforeach
                     </select>
+                    @error('region_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
-            </div>
 
             <div style="margin-bottom: 16px;">
                 <label for="address" style="display: block; font-weight: 600; margin-bottom: 4px;">Address</label>
@@ -69,11 +66,6 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="manager_name" style="display: block; font-weight: 600; margin-bottom: 4px;">Manager Name</label>
-                    <input type="text" name="manager_name" id="manager_name" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('manager_name') }}">
-                </div>
                 <div class="col-md-6" style="margin-bottom: 16px;">
                     <label for="manager_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Manager User</label>
                     <select name="manager_id" id="manager_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;">

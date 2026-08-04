@@ -26,8 +26,14 @@
 
             <div class="row">
                 <div class="col-md-6" style="margin-bottom: 16px;">
-                    <label for="region" style="display: block; font-weight: 600; margin-bottom: 4px;">Region</label>
-                    <input type="text" name="region" id="region" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" value="{{ old('region', $store->region) }}">
+                    <label for="region_id" style="display: block; font-weight: 600; margin-bottom: 4px;">Region <span style="color: red;">*</span></label>
+                    <select name="region_id" id="region_id" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" required>
+                        <option value="">Select Region</option>
+                        @foreach($regions as $region)
+                            <option value="{{ $region->id }}" {{ old('region_id', $store->region_id) == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('region_id') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
                 </div>
                 <div class="col-md-6" style="margin-bottom: 16px;">
                     <label for="store_type" style="display: block; font-weight: 600; margin-bottom: 4px;">Store Type</label>

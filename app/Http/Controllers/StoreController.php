@@ -11,7 +11,7 @@ class StoreController extends Controller
 {
     public function index()
     {
-        $stores = Store::with(['parentStore', 'manager', 'region'])->latest()->get();
+        $stores = Store::with(['parentStore', 'manager', 'region'])->latest()->paginate(15);
 
         return view('stores.index', compact('stores'));
     }

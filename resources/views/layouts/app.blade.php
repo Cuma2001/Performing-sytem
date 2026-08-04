@@ -449,6 +449,8 @@
         /* Tables */
         .table-responsive {
             overflow-x: auto;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .table {

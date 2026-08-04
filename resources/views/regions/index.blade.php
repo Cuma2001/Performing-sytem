@@ -28,7 +28,6 @@
                     <th>ID</th>
                     <th>Name</th>
                     <th>Code</th>
-                    <th>Description</th>
                     <th>Stores Count</th>
                     <th>Status</th>
                     <th>Created At</th>
@@ -41,8 +40,7 @@
                     <td>{{ $region->id }}</td>
                     <td><strong>{{ $region->name }}</strong></td>
                     <td><span class="badge" style="background: #1d6988; color: white;">{{ $region->code }}</span></td>
-                    <td>{{ $region->description ?? '—' }}</td>
-                    <td>{{ $region->stores_count }}</td>  {{-- FIXED: Using the accessor instead of direct query --}}
+                    <td>{{ $region->stores_count }}</td>
                     <td>
                         @if($region->is_active)
                             <span class="badge bg-success">Active</span>
@@ -66,7 +64,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
                         <i class="fas fa-store" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
                         No regions found. <a href="{{ route('region.create') }}">Create your first region</a>.
                     </td>

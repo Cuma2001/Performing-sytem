@@ -35,11 +35,6 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 16px;">
-                <label for="description" style="display: block; font-weight: 600; margin-bottom: 4px;">Description</label>
-                <textarea name="description" id="description" class="form-control" style="width: 100%; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;" rows="3">{{ old('description', $region->description ?? '') }}</textarea>
-                @error('description') <span style="color: red; font-size: 0.85rem;">{{ $message }}</span> @enderror
-            </div>
 
             <div style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 600; margin-bottom: 4px;">Status</label>

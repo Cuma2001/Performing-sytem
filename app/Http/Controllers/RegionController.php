@@ -10,7 +10,7 @@ class RegionController extends Controller
 {
     public function index()
     {
-        $regions = Region::orderBy('name')->paginate(15);
+        $regions = Region::withCount('stores')->orderBy('name')->paginate(15);
         return view('regions.index', compact('regions'));
     }
 
@@ -24,7 +24,6 @@ class RegionController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:regions,code',
-            'description' => 'nullable|string',
             'is_active' => 'sometimes|boolean',
         ]);
 
@@ -48,7 +47,6 @@ class RegionController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => ['required', 'string', 'max:50', Rule::unique('regions')->ignore($region->id)],
-            'description' => 'nullable|string',
             'is_active' => 'sometimes|boolean',
         ]);
 

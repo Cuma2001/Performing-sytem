@@ -53,7 +53,6 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth'])->group(function () {
     Route::resource('region', RegionController::class);
-    Route::resource('stores', StoreController::class);
     Route::resource('users', UserController::class);
 });
 

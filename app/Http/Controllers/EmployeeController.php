@@ -13,7 +13,7 @@ class EmployeeController extends Controller
     {
         $employees = Employee::with(['store', 'region', 'manager', 'user'])
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view('employees.index', compact('employees'));
     }
@@ -23,8 +23,9 @@ class EmployeeController extends Controller
         $stores = Store::all();
         $users = User::all();
         $managers = Employee::all();
+        $managedStore = auth()->user()?->store()->first();
 
-        return view('employees.create', compact('stores', 'users', 'managers'));
+        return view('employees.create', compact('stores', 'users', 'managers', 'managedStore'));
     }
 
     public function store(Request $request)
