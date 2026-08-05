@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\Store;
 use App\Models\User;
+use App\Models\Region;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -23,14 +24,15 @@ class EmployeeController extends Controller
         $stores = Store::all();
         $users = User::all();
         $managers = Employee::all();
+        $regions = Region::all();
         $managedStore = auth()->user()?->store()->first();
 
-        return view('employees.create', compact('stores', 'users', 'managers', 'managedStore'));
+        return view('employees.create', compact('stores', 'users', 'managers', 'regions', 'managedStore'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'employee_code' => 'required|string|max:50|unique:employees,employee_code',
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -54,10 +56,14 @@ class EmployeeController extends Controller
             'status' => 'required|in:active,inactive,terminated,on_leave',
         ]);
 
-        Employee::create($request->all());
+        $sanitized = collect($validated)->map(function ($value) {
+            return $value === '' ? null : $value;
+        })->toArray();
+
+        Employee::create($sanitized);
 
         return redirect()->route('employees.index')
-            ->with('success', 'Employee created successfully!');
+            ->with('success', 'Employee added successfully!');
     }
 
     public function show(Employee $employee)
