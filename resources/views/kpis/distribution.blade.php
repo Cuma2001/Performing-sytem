@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('content')
-    <div style="max-width: 1400px; margin: 0 auto;">
+    <div style="container-fluid px-4">
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 KPI Distribution

@@ -1,8 +1,21 @@
 {{-- resources/views/utilities/master-upload.blade.php --}}
 @extends('layouts.app')
-
+<style>
+    .upload-card:hover {
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    .card-body {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+</style>
 @section('content')
-    <div style="max-width: 1400px; margin: 0 auto;">
+    <div style="container-fluid px-4">
         <div class="card" style="margin-bottom: 24px;">
             <div class="card-header">
                 <h4><i class="fas fa-upload"></i> KPI Upload Utility</h4>
