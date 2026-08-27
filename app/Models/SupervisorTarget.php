@@ -13,6 +13,7 @@ class SupervisorTarget extends Model
     protected $fillable = [
         'supervisor_code',
         'store_code',
+        'kpi',
         'target',
         'month',
         'upload_batch_id',

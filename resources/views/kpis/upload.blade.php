@@ -43,6 +43,26 @@
                         <div id="storeUploadStatus" style="margin-top: 10px;"></div>
                     </div>
 
+                    <!-- Sales Agent KPI Upload -->
+                    <div class="upload-card" style="border: 2px dashed #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; transition: all 0.3s;">
+                        <i class="fas fa-user" style="font-size: 48px; color: #2c3e50; margin-bottom: 12px;"></i>
+                        <h4 style="color: #1e2f3f; margin-bottom: 8px;">Sales Agent KPI Targets</h4>
+                        <p style="margin-bottom: 12px; color: #666;">Upload targets for individual sales agents</p>
+                        <form id="salesAgentKPIForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" name="file" id="salesAgentFile" accept=".xlsx,.csv,.xls" style="display: none;">
+                            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('salesAgentFile').click()">
+                                    <i class="fas fa-folder-open"></i> Choose File
+                                </button>
+                                <button type="submit" class="btn btn-primary" style="background: #e74c3c;">
+                                    <i class="fas fa-upload"></i> Upload
+                                </button>
+                            </div>
+                        </form>
+                        <div id="salesAgentUploadStatus" style="margin-top: 10px;"></div>
+                    </div>
+
                     <!-- Supervisor KPI Upload -->
                     <div class="upload-card" style="border: 2px dashed #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; transition: all 0.3s;">
                         <i class="fas fa-user-tie" style="font-size: 48px; color: #2c3e50; margin-bottom: 12px;"></i>
@@ -218,6 +238,7 @@
         setupUpload('supervisorKPIForm', 'supervisorFile', 'supervisor', 'supervisorUploadStatus');
         setupUpload('companyKPIForm', 'companyFile', 'company', 'companyUploadStatus');
         setupUpload('mtnKPIForm', 'mtnFile', 'mtn', 'mtnUploadStatus');
+        setupUpload('salesAgentKPIForm', 'salesAgentFile', 'sales_agent', 'salesAgentUploadStatus');
 
         function loadUploadHistory() {
             $.get('{{ route('utility.master-history') }}', function (data) {
@@ -265,7 +286,8 @@
             { inputId: 'storeFile', statusId: 'storeUploadStatus', label: 'Store KPI' },
             { inputId: 'supervisorFile', statusId: 'supervisorUploadStatus', label: 'Supervisor KPI' },
             { inputId: 'companyFile', statusId: 'companyUploadStatus', label: 'Company KPI' },
-            { inputId: 'mtnFile', statusId: 'mtnUploadStatus', label: 'MTN KPI' }
+            { inputId: 'mtnFile', statusId: 'mtnUploadStatus', label: 'MTN KPI' },
+            { inputId: 'salesAgentFile', statusId: 'salesAgentUploadStatus', label: 'Sales Agent KPI' }
         ];
 
         fileInputConfigs.forEach(config => {

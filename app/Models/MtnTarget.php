@@ -13,6 +13,7 @@ class MtnTarget extends Model
     protected $fillable = [
         'mtn_code',
         'store_code',
+        'kpi',
         'target',
         'month',
         'upload_batch_id',

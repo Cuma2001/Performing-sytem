@@ -11,6 +11,7 @@ class CompanyTarget extends Model
     protected $table = 'company_targets';
 
     protected $fillable = [
+        'kpi',
         'target',
         'month',
         'upload_batch_id',
