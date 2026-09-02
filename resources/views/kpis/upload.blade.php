@@ -141,11 +141,12 @@
                                 <th>Type</th>
                                 <th>Status</th>
                                 <th>Records</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="uploadHistoryTable">
                             <tr>
-                                <td colspan="5" style="text-align: center;">Loading...</td>
+                                <td colspan="6" style="text-align: center;">Loading...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -240,6 +241,22 @@
         setupUpload('mtnKPIForm', 'mtnFile', 'mtn', 'mtnUploadStatus');
         setupUpload('salesAgentKPIForm', 'salesAgentFile', 'sales_agent', 'salesAgentUploadStatus');
 
+        function getHistoryActionButtons(upload) {
+            let buttons = [];
+
+            if (upload.status_badge === 'danger') {
+                buttons.push(
+                    '<button type="button" class="btn btn-sm btn-warning" data-action="retry" data-id="' + (upload.id || '') + '" style="margin-right: 6px;">Retry</button>'
+                );
+            }
+
+            buttons.push(
+                '<button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="' + (upload.id || '') + '">Delete</button>'
+            );
+
+            return buttons.join('');
+        }
+
         function loadUploadHistory() {
             $.get('{{ route('utility.master-history') }}', function (data) {
                 let html = '';
@@ -265,16 +282,66 @@
                             '<td><span style="background: #f39c12; color: #1e2f3f; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 12px; text-transform: uppercase;">' + (upload.type || '') + '</span></td>' +
                             '<td><span style="color: ' + statusColor + '; font-weight: 500;">' + (upload.status || '') + '</span></td>' +
                             '<td>' + recordsDisplay + '</td>' +
+                            '<td>' + getHistoryActionButtons(upload) + '</td>' +
                             '</tr>';
                     });
                 } else {
-                    html = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #6c757d;">No uploads yet</td></tr>';
+                    html = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #6c757d;">No uploads yet</td></tr>';
                 }
                 $('#uploadHistoryTable').html(html);
             }).fail(function() {
-                $('#uploadHistoryTable').html('<tr><td colspan="5" style="text-align: center; color: #dc3545;">Failed to load history</td></tr>');
+                $('#uploadHistoryTable').html('<tr><td colspan="6" style="text-align: center; color: #dc3545;">Failed to load history</td></tr>');
             });
         }
+
+        $(document).on('click', '[data-action="retry"]', function () {
+            const id = $(this).data('id');
+            if (!id) return;
+
+            if (!confirm('Retry this upload?')) return;
+
+            $.ajax({
+                url: '{{ url('/utilities/retry') }}/' + id,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    alert(response.message || 'Upload retried successfully.');
+                    loadUploadHistory();
+                },
+                error: function (xhr) {
+                    const msg = xhr.responseJSON?.message || 'Retry failed.';
+                    alert(msg);
+                }
+            });
+        });
+
+        $(document).on('click', '[data-action="delete"]', function () {
+            const id = $(this).data('id');
+            if (!id) return;
+
+            if (!confirm('Delete this upload record?')) return;
+
+            $.ajax({
+                url: '{{ url('/utilities/delete') }}/' + id,
+                type: 'POST',
+                data: {
+                    _method: 'DELETE'
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    alert(response.message || 'Upload deleted.');
+                    loadUploadHistory();
+                },
+                error: function (xhr) {
+                    const msg = xhr.responseJSON?.message || 'Delete failed.';
+                    alert(msg);
+                }
+            });
+        });
 
         $(document).ready(function() {
             loadUploadHistory();

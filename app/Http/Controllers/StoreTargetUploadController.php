@@ -32,7 +32,13 @@ class StoreTargetUploadController extends Controller
     public function process(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:xlsx,csv,xls|max:10240',
+            'file' => [
+                'required',
+                'file',
+                'mimes:xlsx,csv,xls,txt',
+                'mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-office',
+                'max:10240',
+            ],
             'upload_type' => 'required|in:store,supervisor,company,mtn,sales_agent'
         ]);
 
@@ -52,18 +58,10 @@ class StoreTargetUploadController extends Controller
             // Store file
             $path = $file->storeAs('kpi_uploads', $fileName, 'public');
             $fileHash = md5_file($file->getPathname());
-            
-            // Check for duplicate
-            $existing = StoreTargetUpload::where('file_hash', $fileHash)
-                ->where('status', '!=', StoreTargetUpload::STATUS_FAILED)
-                ->first();
-                
-            if ($existing) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This file has already been uploaded'
-                ], 409);
-            }
+
+            // Allow re-uploading the same spreadsheet when users intentionally reprocess it.
+            // The import itself is idempotent via updateOrInsert() and the upload history
+            // should still be retained for each run instead of blocking legitimate retries.
             
             // Create upload record
             $upload = StoreTargetUpload::create([
@@ -254,6 +252,18 @@ class StoreTargetUploadController extends Controller
                     'kpi' => $data['kpi'] ?? null,
                     'business_unit' => $data['business_unit'] ?? null,
                     'annual_budget' => $data['annual_budget'] ?? 0,
+                    'target_jan' => $data['target_jan'] ?? null,
+                    'target_feb' => $data['target_feb'] ?? null,
+                    'target_mar' => $data['target_mar'] ?? null,
+                    'target_apr' => $data['target_apr'] ?? null,
+                    'target_may' => $data['target_may'] ?? null,
+                    'target_jun' => $data['target_jun'] ?? null,
+                    'target_jul' => $data['target_jul'] ?? null,
+                    'target_aug' => $data['target_aug'] ?? null,
+                    'target_sep' => $data['target_sep'] ?? null,
+                    'target_oct' => $data['target_oct'] ?? null,
+                    'target_nov' => $data['target_nov'] ?? null,
+                    'target_dec' => $data['target_dec'] ?? null,
                     'target_year' => $this->targetYear($data),
                     'source_file' => $data['source_file'] ?? null,
                 ], $baseData);

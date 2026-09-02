@@ -6,7 +6,7 @@
 
 <div class="page-wrapper">
 
-    <!-- HERO -->
+    
     <div class="page-hero">
         <div>
             <div class="page-hero__eyebrow">

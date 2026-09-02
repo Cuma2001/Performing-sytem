@@ -767,7 +767,7 @@
                 </li>
             @endif
 
-            @if(in_array($roleName, ['Superadmin', 'Supervisor']))
+            @if(in_array($roleName, ['Superadmin', 'Supervisor', 'CEO/HR']))
                 <li class="nav-section-title">Performance</li>
                 <li class="nav-item">
                     <a href="{{ route('kpi.distribution') }}" class="nav-link {{ request()->routeIs('kpi.distribution') ? 'active' : '' }}">
