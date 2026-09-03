@@ -318,7 +318,7 @@
         });
 
         $(document).on('click', '[data-action="delete"]', function () {
-            const id = $(this).data('id');
+            const id = $(this).data('id');             
             if (!id) return;
 
             if (!confirm('Delete this upload record?')) return;

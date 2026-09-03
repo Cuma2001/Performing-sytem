@@ -124,6 +124,9 @@ class StoreTargetUploadController extends Controller
             $header = array_map(function ($value) {
                 return Str::snake(trim((string) $value));
             }, array_shift($rows));
+            if (in_array($type, ['store', 'mtn'], true)) {
+                $header = $this->normalizeStoreHeaders($header);
+            }
             $successful = 0;
             $failed = 0;
             
@@ -134,6 +137,9 @@ class StoreTargetUploadController extends Controller
                 
                 try {
                     $data = array_combine($header, array_pad($row, count($header), null));
+                    if ($type === 'store' && empty($data['store_code'])) {
+                        $data['store_code'] = $this->fallbackStoreCode($data);
+                    }
                     
                     // Validate row data
                     if (!$this->validateRowData($data, $type)) {
@@ -148,9 +154,11 @@ class StoreTargetUploadController extends Controller
                     // Insert into appropriate table
                     $this->insertRecord($type, $insertData);
                     $successful++;
+                    $upload->increment('processed_records');
                     
                 } catch (\Exception $e) {
                     $failed++;
+                    $upload->increment('processed_records');
                     $upload->addError("Row " . ($index + 2) . " failed: " . $e->getMessage());
                 }
             }
@@ -288,8 +296,29 @@ class StoreTargetUploadController extends Controller
                 return array_merge([
                     'mtn_code' => $data['mtn_code'] ?? null,
                     'store_code' => $data['store_code'] ?? null,
+                    'ownership' => $data['ownership'] ?? null,
+                    'dealer' => $data['dealer'] ?? null,
+                    'store_type' => $data['store_type'] ?? null,
+                    'region' => $data['region'] ?? null,
+                    'cluster' => $data['cluster'] ?? null,
                     'kpi' => $data['kpi'] ?? null,
+                    'business_unit' => $data['business_unit'] ?? null,
+                    'annual_budget' => $data['annual_budget'] ?? 0,
                     'target' => $data['target'] ?? 0,
+                    'target_jan' => $data['target_jan'] ?? 0,
+                    'target_feb' => $data['target_feb'] ?? 0,
+                    'target_mar' => $data['target_mar'] ?? 0,
+                    'target_apr' => $data['target_apr'] ?? 0,
+                    'target_may' => $data['target_may'] ?? 0,
+                    'target_jun' => $data['target_jun'] ?? 0,
+                    'target_jul' => $data['target_jul'] ?? 0,
+                    'target_aug' => $data['target_aug'] ?? 0,
+                    'target_sep' => $data['target_sep'] ?? 0,
+                    'target_oct' => $data['target_oct'] ?? 0,
+                    'target_nov' => $data['target_nov'] ?? 0,
+                    'target_dec' => $data['target_dec'] ?? 0,
+                    'target_year' => $this->targetYear($data),
+                    'total_target' => $data['total_target'] ?? 0,
                     'month' => $data['month'] ?? now()->format('Y-m'),
                 ], $baseData);
 
@@ -317,7 +346,7 @@ class StoreTargetUploadController extends Controller
         $requiredFields = $this->getRequiredFields($type);
         
         foreach ($requiredFields as $field) {
-            if ($type === 'store' && $field === 'target' && $this->hasMonthlyTarget($data)) {
+            if (in_array($type, ['store', 'mtn'], true) && $field === 'target' && $this->hasMonthlyTarget($data)) {
                 continue;
             }
             if (empty($data[$field] ?? null)) {
@@ -348,6 +377,48 @@ class StoreTargetUploadController extends Controller
         ];
         
         return $fields[$type] ?? [];
+    }
+
+    private function normalizeStoreHeaders(array $headers): array
+    {
+        $aliases = [
+            'owner' => 'ownership',
+            'ownership' => 'ownership',
+            'business' => 'business_unit',
+            'business_unit' => 'business_unit',
+            'budget' => 'annual_budget',
+            'total' => 'total_target',
+        ];
+
+        return array_map(function (string $header) use ($aliases): string {
+            if (isset($aliases[$header])) {
+                return $aliases[$header];
+            }
+
+            if (preg_match('/^(?:20\\d{2}_)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)(?:_target)?$/', $header, $matches)) {
+                return 'target_' . $matches[1];
+            }
+
+            if (preg_match('/^20\\d{2}_budget$/', $header)) {
+                return 'annual_budget';
+            }
+
+            return $header;
+        }, $headers);
+    }
+
+    private function fallbackStoreCode(array $data): string
+    {
+        $identity = implode('|', [
+            $data['dealer'] ?? '',
+            $data['store_type'] ?? '',
+            $data['region'] ?? '',
+            $data['cluster'] ?? '',
+            $data['kpi'] ?? '',
+            $data['business_unit'] ?? '',
+        ]);
+
+        return 'IMPORT-' . strtoupper(substr(sha1($identity), 0, 12));
     }
 
     private function targetYear(array $data): int
@@ -441,7 +512,7 @@ class StoreTargetUploadController extends Controller
         $type = $request->get('type', 'store');
         
         $headers = [
-            'store' => ['store_code', 'store_name', 'kpi', 'business_unit', 'target', 'month', 'target_year'],
+            'store' => ['store_code', 'store_name', 'kpi', 'business_unit', 'target_year', 'target_jan', 'target_feb', 'target_mar', 'target_apr', 'target_may', 'target_jun', 'target_jul', 'target_aug', 'target_sep', 'target_oct', 'target_nov', 'target_dec'],
             'supervisor' => ['supervisor_code', 'store_code', 'kpi', 'target', 'month'],
             'company' => ['kpi', 'target', 'month'],
             'mtn' => ['mtn_code', 'store_code', 'kpi', 'target', 'month'],
