@@ -782,6 +782,22 @@
                 </li>
             @endif
 
+            @if(in_array($roleName, ['Salesperson']))
+                <li class="nav-section-title">Salesperson</li>
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.salesperson.kpis') }}" class="nav-link {{ request()->routeIs('dashboard.salesperson.kpis') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Salesperson KPIs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('dashboard.salesperson.targets') }}" class="nav-link {{ request()->routeIs('dashboard.salesperson.targets') ? 'active' : '' }}">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Salesperson Targets</span>
+                    </a>
+                </li>
+            @endif
+
             <li class="nav-section-title">Support</li>
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">

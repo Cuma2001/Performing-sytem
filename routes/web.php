@@ -36,6 +36,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/ceo-hr', [DashboardController::class, 'ceoHrDashboard'])->name('dashboard.ceo-hr');
     Route::get('/dashboard/supervisor', [DashboardController::class, 'supervisorDashboard'])->name('dashboard.supervisor');
     Route::get('/dashboard/salesperson', [DashboardController::class, 'salespersonDashboard'])->name('dashboard.salesperson');
+    Route::get('/dashboard/salesperson/kpis', [DashboardController::class, 'salespersonKpis'])->name('dashboard.salesperson.kpis');
+    Route::get('/dashboard/salesperson/targets', [DashboardController::class, 'salespersonTargets'])->name('dashboard.salesperson.targets');
 });
 
 /*

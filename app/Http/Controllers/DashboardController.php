@@ -179,4 +179,50 @@ class DashboardController extends Controller
             'recentSales' => $recentSales,
         ]);
     }
+
+    public function salespersonKpis($user = null)
+    {
+        $user ??= auth()->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $userStore = $user->store_id ? Store::find($user->store_id) : null;
+
+        $kpis = [
+            ['name' => 'Sales Revenue', 'target' => 'R 120,000', 'actual' => 'R 146,800', 'achievement' => 122.3, 'status' => 'Exceeding', 'trend' => 'up'],
+            ['name' => 'Customer Conversion', 'target' => '75%', 'actual' => '82%', 'achievement' => 109.3, 'status' => 'Above Target', 'trend' => 'up'],
+            ['name' => 'Retention Rate', 'target' => '90%', 'actual' => '94%', 'achievement' => 104.4, 'status' => 'On Track', 'trend' => 'up'],
+            ['name' => 'Fibre Sales', 'target' => '18 units', 'actual' => '15 units', 'achievement' => 83.3, 'status' => 'Below Target', 'trend' => 'down'],
+        ];
+
+        return view('dashboards.salesperson-kpis', [
+            'userStore' => $userStore,
+            'kpis' => $kpis,
+        ]);
+    }
+
+    public function salespersonTargets($user = null)
+    {
+        $user ??= auth()->user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $userStore = $user->store_id ? Store::find($user->store_id) : null;
+
+        $targets = [
+            ['name' => 'Monthly Revenue', 'target' => 'R 120,000', 'actual' => 'R 146,800', 'progress' => 122, 'status' => 'Excellent'],
+            ['name' => 'Average Sale Value', 'target' => 'R 3,200', 'actual' => 'R 3,640', 'progress' => 113, 'status' => 'Strong'],
+            ['name' => 'New Customers', 'target' => '65', 'actual' => '58', 'progress' => 89, 'status' => 'Watch'],
+            ['name' => 'Upsell Rate', 'target' => '30%', 'actual' => '34%', 'progress' => 113, 'status' => 'Excellent'],
+        ];
+
+        return view('dashboards.salesperson-targets', [
+            'userStore' => $userStore,
+            'targets' => $targets,
+        ]);
+    }
 }

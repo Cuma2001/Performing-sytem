@@ -28,8 +28,14 @@
                 </li>
 
                 <li>
-                    <a href="" class="dropdown-toggle no-arrow">
-                        <span class="micon"><i class="dw dw-user"></i></span><span class="mtext">Staff Leave Days</span>
+                    <a href="{{ route('dashboard.salesperson.kpis') }}" class="dropdown-toggle no-arrow">
+                        <span class="micon"><i class="fas fa-chart-line"></i></span><span class="mtext">Salesperson KPIs</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('dashboard.salesperson.targets') }}" class="dropdown-toggle no-arrow">
+                        <span class="micon"><i class="fas fa-bullseye"></i></span><span class="mtext">Salesperson Targets</span>
                     </a>
                 </li>
 

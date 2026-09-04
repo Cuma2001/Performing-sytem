@@ -16,4 +16,12 @@ class DashboardControllerTest extends TestCase
         $this->assertSame('supervisor', $controller->resolveDashboardKey('Supervisor'));
         $this->assertSame('salesperson', $controller->resolveDashboardKey('Salesperson'));
     }
+
+    public function test_salesperson_kpi_and_target_pages_are_available(): void
+    {
+        $controller = new DashboardController();
+
+        $this->assertTrue(method_exists($controller, 'salespersonKpis'));
+        $this->assertTrue(method_exists($controller, 'salespersonTargets'));
+    }
 }
