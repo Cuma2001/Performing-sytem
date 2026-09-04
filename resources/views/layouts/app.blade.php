@@ -721,7 +721,6 @@
                 'employees.show' => ['Employee Profile', 'Review role, store, and status'],
                 'kpi.distribution' => ['KPI Distribution', 'Review KPI allocation and coverage'],
                 'kpi.upload' => ['KPI Upload', 'Import and manage KPI data'],
-                'utilities.index' => ['Utilities', 'Support tools and operational maintenance'],
                 'reports.index' => ['Reports', 'View summaries and reporting outputs'],
             ];
 
@@ -784,12 +783,6 @@
             @endif
 
             <li class="nav-section-title">Support</li>
-            <li class="nav-item">
-                <a href="{{ route('utilities.index') }}" class="nav-link {{ request()->routeIs('utilities.*') ? 'active' : '' }}">
-                    <i class="fas fa-cog"></i>
-                    <span>Utilities</span>
-                </a>
-            </li>
             <li class="nav-item">
                 <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
                     <i class="fas fa-file-alt"></i>

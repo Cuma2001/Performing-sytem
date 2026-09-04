@@ -29,12 +29,6 @@
 
                 <li>
                     <a href="" class="dropdown-toggle no-arrow">
-                        <span class="fas fa-table"></span><span class="mtext">Utilities</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="" class="dropdown-toggle no-arrow">
                         <span class="micon"><i class="dw dw-user"></i></span><span class="mtext">Staff Leave Days</span>
                     </a>
                 </li>
