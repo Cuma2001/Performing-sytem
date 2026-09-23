@@ -23,6 +23,11 @@ class SupervisorTarget extends Model
         'target' => 'decimal:2',
     ];
 
+    public function storeTarget(): BelongsTo
+    {
+        return $this->belongsTo(StoreTarget::class, 'store_code', 'store_code');
+    }
+
     public function uploadBatch(): BelongsTo
     {
         return $this->belongsTo(StoreTargetUpload::class, 'upload_batch_id');

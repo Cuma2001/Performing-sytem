@@ -83,6 +83,28 @@
                         <div id="supervisorUploadStatus" style="margin-top: 10px;"></div>
                     </div>
 
+                    <!-- Region KPI Upload -->
+                    <div class="upload-card" style="border: 2px dashed #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; transition: all 0.3s;">
+                        <i class="fas fa-map" style="font-size: 48px; color: #2c3e50; margin-bottom: 12px;"></i>
+                        <h4 style="color: #1e2f3f; margin-bottom: 8px;">Region KPIs</h4>
+                        <p style="margin-bottom: 12px; color: #666;">Upload region-wide KPI targets</p>
+                        <form id="regionKPIForm" enctype="multipart/form-data">
+                            @csrf
+                            <input type="file" name="file" id="regionFile" accept=".xlsx,.csv,.xls" style="display: none;">
+                            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('regionFile').click()">
+                                    <i class="fas fa-folder-open"></i> Choose File
+                                </button>
+                                <button type="submit" class="btn btn-primary" style="background: #e74c3c;">
+                                    <i class="fas fa-upload"></i> Upload
+                                </button>
+                            </div>
+                        </form>
+                        <div id="regionUploadStatus" style="margin-top: 10px;"></div>
+                    </div>
+
+                    <!-- End Region KPI Upload -->
+
                     <!-- Company KPI Upload -->
                     <div class="upload-card" style="border: 2px dashed #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; transition: all 0.3s;">
                         <i class="fas fa-building" style="font-size: 48px; color: #2c3e50; margin-bottom: 12px;"></i>
@@ -160,13 +182,13 @@
         function setupUpload(formId, fileInputId, uploadType, statusDivId) {
             $('#' + formId).on('submit', function (e) {
                 e.preventDefault();
-                
+
                 let fileInput = document.getElementById(fileInputId);
                 if (!fileInput.files || fileInput.files.length === 0) {
                     $('#' + statusDivId).html('<p style="color: #e74c3c;">Please select a file first.</p>');
                     return;
                 }
-                
+
                 let formData = new FormData(this);
                 formData.append('upload_type', uploadType);
 
@@ -188,22 +210,22 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    headers: { 
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') 
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function (response) {
                         let statusHtml = `
                             <div style="margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 6px; border-left: 4px solid #28a745;">
                                 <p style="color: #155724; margin: 0;">
                                     <i class="fas fa-check-circle" style="color: #28a745;"></i>
-                                    ✓ Upload successful! 
+                                    ✓ Upload successful!
                                     ${response.records || 0} records processed.
                                     ${response.success_records !== undefined ? `<br><small>Success: ${response.success_records} | Failed: ${response.failed_records}</small>` : ''}
                                 </p>
                             </div>
                         `;
                         $('#' + statusDivId).html(statusHtml);
-                        
+
                         document.getElementById(fileInputId).value = '';
                         loadUploadHistory();
                         setTimeout(() => location.reload(), 3000);
@@ -217,7 +239,7 @@
                         } else if (xhr.status === 409) {
                             errorMsg = 'This file has already been uploaded.';
                         }
-                        
+
                         let statusHtml = `
                             <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 6px; border-left: 4px solid #dc3545;">
                                 <p style="color: #721c24; margin: 0;">
@@ -237,6 +259,7 @@
 
         setupUpload('storeKPIForm', 'storeFile', 'store', 'storeUploadStatus');
         setupUpload('supervisorKPIForm', 'supervisorFile', 'supervisor', 'supervisorUploadStatus');
+        setupUpload('regionKPIForm', 'regionFile', 'region', 'regionUploadStatus');
         setupUpload('companyKPIForm', 'companyFile', 'company', 'companyUploadStatus');
         setupUpload('mtnKPIForm', 'mtnFile', 'mtn', 'mtnUploadStatus');
         setupUpload('salesAgentKPIForm', 'salesAgentFile', 'sales_agent', 'salesAgentUploadStatus');
@@ -270,12 +293,12 @@
                             'info': '#17a2b8',
                             'secondary': '#6c757d'
                         }[statusClass] || '#6c757d';
-                        
+
                         let recordsDisplay = upload.records || 0;
                         if (upload.success_records !== undefined && upload.failed_records !== undefined) {
                             recordsDisplay = `${upload.success_records} ✓ / ${upload.failed_records} ✗`;
                         }
-                        
+
                         html += '<tr>' +
                             '<td>' + (upload.created_at || '') + '</td>' +
                             '<td>' + (upload.file_name || '') + '</td>' +
@@ -318,7 +341,7 @@
         });
 
         $(document).on('click', '[data-action="delete"]', function () {
-            const id = $(this).data('id');             
+            const id = $(this).data('id');
             if (!id) return;
 
             if (!confirm('Delete this upload record?')) return;
@@ -352,6 +375,7 @@
         const fileInputConfigs = [
             { inputId: 'storeFile', statusId: 'storeUploadStatus', label: 'Store KPI' },
             { inputId: 'supervisorFile', statusId: 'supervisorUploadStatus', label: 'Supervisor KPI' },
+            { inputId: 'regionFile', statusId: 'regionUploadStatus', label: 'Region KPI' },
             { inputId: 'companyFile', statusId: 'companyUploadStatus', label: 'Company KPI' },
             { inputId: 'mtnFile', statusId: 'mtnUploadStatus', label: 'MTN KPI' },
             { inputId: 'salesAgentFile', statusId: 'salesAgentUploadStatus', label: 'Sales Agent KPI' }
@@ -366,7 +390,7 @@
                     let statusHtml = `
                         <div style="margin-top: 8px; padding: 6px 10px; background: #e8f4f8; border-radius: 4px; border-left: 3px solid #2c3e50;">
                             <span style="color: #2c3e50; font-size: 14px;">
-                                <i class="fas fa-file"></i> 
+                                <i class="fas fa-file"></i>
                                 ${file.name} (${fileSize} MB)
                             </span>
                         </div>

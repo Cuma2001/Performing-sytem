@@ -1,19 +1,19 @@
 <?php
-// app/Models/CompanyTarget.php
+// app/Models/RegionTarget.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CompanyTarget extends Model
+class RegionTarget extends Model
 {
-    protected $table = 'company_targets';
+    protected $table = 'region_targets';
 
     protected $fillable = [
-        'store_code',
-        'mtn_code',
         'region_code',
+        'mtn_code',
+        'store_code',
         'store_name',
         'ownership',
         'dealer',
@@ -51,18 +51,18 @@ class CompanyTarget extends Model
     }
 
     /**
-     * MTN benchmark rows sharing this dealer's mtn_code.
+     * Dealer/company target this region rolls up to, matched on mtn_code.
      */
-    public function mtnTargets()
+    public function companyTarget()
     {
-        return $this->hasMany(MtnTarget::class, 'mtn_code', 'mtn_code');
+        return $this->belongsTo(CompanyTarget::class, 'mtn_code', 'mtn_code');
     }
 
     /**
-     * Region breakdown rows under this dealer.
+     * Store target rows under this region.
      */
-    public function regionTargets()
+    public function storeTargets()
     {
-        return $this->hasMany(RegionTarget::class, 'mtn_code', 'mtn_code');
+        return $this->hasMany(StoreTarget::class, 'region_code', 'region_code');
     }
 }

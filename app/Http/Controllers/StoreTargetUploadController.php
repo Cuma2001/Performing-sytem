@@ -7,6 +7,7 @@ use App\Models\StoreTargetUpload;
 use App\Models\StoreTarget;
 use App\Models\SupervisorTarget;
 use App\Models\CompanyTarget;
+use App\Models\RegionTarget;
 use App\Models\MtnTarget;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -39,7 +40,7 @@ class StoreTargetUploadController extends Controller
                 'mimetypes:text/plain,text/csv,application/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-office',
                 'max:10240',
             ],
-            'upload_type' => 'required|in:store,supervisor,company,mtn,sales_agent'
+            'upload_type' => 'required|in:store,supervisor,company,region,mtn,sales_agent'
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +55,7 @@ class StoreTargetUploadController extends Controller
             $uploadType = $request->upload_type;
             $originalName = $file->getClientOriginalName();
             $fileName = date('Y-m-d_H-i-s') . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            
+
             // Store file
             $path = $file->storeAs('kpi_uploads', $fileName, 'public');
             $fileHash = md5_file($file->getPathname());
@@ -62,7 +63,7 @@ class StoreTargetUploadController extends Controller
             // Allow re-uploading the same spreadsheet when users intentionally reprocess it.
             // The import itself is idempotent via updateOrInsert() and the upload history
             // should still be retained for each run instead of blocking legitimate retries.
-            
+
             // Create upload record
             $upload = StoreTargetUpload::create([
                 'filename' => $fileName,
@@ -77,10 +78,10 @@ class StoreTargetUploadController extends Controller
                 'status' => StoreTargetUpload::STATUS_PENDING,
                 'uploaded_by' => auth()->id(),
             ]);
-            
+
             // Process the file
             $result = $this->processFile($upload, $file, $uploadType);
-            
+
             // Update upload record
             $upload->update([
                 'total_records' => $result['total'] ?? 0,
@@ -89,7 +90,7 @@ class StoreTargetUploadController extends Controller
                 'status' => StoreTargetUpload::STATUS_COMPLETED,
                 'processing_completed_at' => now(),
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'File uploaded successfully',
@@ -98,13 +99,13 @@ class StoreTargetUploadController extends Controller
                 'failed_records' => $upload->failed_records,
                 'upload_id' => $upload->id
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('File upload failed: ' . $e->getMessage(), [
                 'file' => $request->file('file')?->getClientOriginalName(),
                 'type' => $request->upload_type
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload file: ' . $e->getMessage()
@@ -116,74 +117,75 @@ class StoreTargetUploadController extends Controller
     {
         try {
             $upload->startProcessing();
-            
+
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
             $worksheet = $spreadsheet->getActiveSheet();
-            // MTN sheets use number formats ("589 617", "-" for zero), so read raw cell values instead.
-            $rows = $worksheet->toArray(null, true, $type !== 'mtn');
+            // MTN/company/region benchmark sheets use number formats ("589 617", "-" for zero), so read raw cell values instead.
+            $isBenchmarkSheet = in_array($type, ['mtn', 'company', 'region'], true);
+            $rows = $worksheet->toArray(null, true, !$isBenchmarkSheet);
 
-            $header = array_map(function ($value) use ($type) {
+            $header = array_map(function ($value) use ($isBenchmarkSheet) {
                 $value = trim((string) $value);
 
                 // Lowercase first so headers like "KPI" don't become "k_p_i".
-                return Str::snake($type === 'mtn' ? strtolower($value) : $value);
+                return Str::snake($isBenchmarkSheet ? strtolower($value) : $value);
             }, array_shift($rows));
             $headerYear = $this->headerYear($header);
-            if (in_array($type, ['store', 'mtn'], true)) {
+            if (in_array($type, ['store', 'mtn', 'company', 'region'], true)) {
                 $header = $this->normalizeStoreHeaders($header);
             }
             $successful = 0;
             $failed = 0;
-            
+
             foreach ($rows as $index => $row) {
                 if (empty(array_filter($row))) {
                     continue;
                 }
-                
+
                 try {
                     $data = array_combine($header, array_pad($row, count($header), null));
                     if ($type === 'store' && empty($data['store_code'])) {
                         $data['store_code'] = $this->fallbackStoreCode($data);
                     }
-                    if ($type === 'mtn') {
-                        $data = $this->cleanMtnRow($data, $headerYear);
+                    if ($isBenchmarkSheet) {
+                        $data = $this->cleanBenchmarkRow($data, $headerYear);
                     }
-                    
+
                     // Validate row data
                     if (!$this->validateRowData($data, $type)) {
                         $failed++;
                         $upload->addValidationError($index + 2, 'row', 'Invalid data format');
                         continue;
                     }
-                    
+
                     // Prepare data for insertion
                     $insertData = $this->prepareRowData($data, $type, $upload->id);
-                    
+
                     // Insert into appropriate table
                     $this->insertRecord($type, $insertData);
                     $successful++;
                     $upload->increment('processed_records');
-                    
+
                 } catch (\Exception $e) {
                     $failed++;
                     $upload->increment('processed_records');
                     $upload->addError("Row " . ($index + 2) . " failed: " . $e->getMessage());
                 }
             }
-            
+
             // Update counts
             $upload->update([
                 'total_records' => $successful + $failed,
                 'success_records' => $successful,
                 'failed_records' => $failed
             ]);
-            
+
             return [
                 'total' => $successful + $failed,
                 'successful' => $successful,
                 'failed' => $failed
             ];
-            
+
         } catch (\Exception $e) {
             $upload->failProcessing($e->getMessage());
             throw $e;
@@ -204,7 +206,24 @@ class StoreTargetUploadController extends Controller
                 break;
             case 'company':
                 CompanyTarget::updateOrCreate(
-                    ['month' => $data['month']],
+                    [
+                        'store_code' => $data['store_code'],
+                        'kpi' => $data['kpi'],
+                        'business_unit' => $data['business_unit'],
+                        'target_year' => $data['target_year'],
+                    ],
+                    $data
+                );
+                break;
+            case 'region':
+                RegionTarget::updateOrCreate(
+                    [
+                        'region_code' => $data['region_code'],
+                        'store_code' => $data['store_code'],
+                        'kpi' => $data['kpi'],
+                        'business_unit' => $data['business_unit'],
+                        'target_year' => $data['target_year'],
+                    ],
                     $data
                 );
                 break;
@@ -222,6 +241,9 @@ class StoreTargetUploadController extends Controller
             case 'sales_agent':
                 $employee = \App\Models\Employee::where('employee_code', $data['employee_code'])->firstOrFail();
                 $store = \App\Models\Store::where('code', $data['store_code'])->firstOrFail();
+                $storeTarget = StoreTarget::where('store_code', $store->code)
+                    ->orderByDesc('target_year')
+                    ->first();
                 DB::table('targets')->updateOrInsert(
                     [
                         'employee_id' => $employee->id,
@@ -232,6 +254,9 @@ class StoreTargetUploadController extends Controller
                     [
                         'region_id' => $store->region_id,
                         'store_id' => $store->id,
+                        'store_code' => $store->code,
+                        'mtn_code' => $storeTarget->mtn_code ?? null,
+                        'region_code' => $storeTarget->region_code ?? null,
                         'sales_target' => $data['target'],
                         'quantity_target' => $data['quantity_target'] ?? null,
                         'revenue_target' => $data['revenue_target'] ?? null,
@@ -259,11 +284,13 @@ class StoreTargetUploadController extends Controller
             'created_at' => now(),
             'updated_at' => now()
         ];
-        
+
         switch ($type) {
             case 'store':
                 return array_merge([
                     'store_code' => $data['store_code'] ?? null,
+                    'mtn_code' => $data['mtn_code'] ?? null,
+                    'region_code' => $data['region_code'] ?? null,
                     'store_name' => $data['store_name'] ?? null,
                     'ownership' => $data['ownership'] ?? 'NON OWNED',
                     'dealer' => $data['dealer'] ?? null,
@@ -288,7 +315,7 @@ class StoreTargetUploadController extends Controller
                     'target_year' => $this->targetYear($data),
                     'source_file' => $data['source_file'] ?? null,
                 ], $baseData);
-                
+
             case 'supervisor':
                 return array_merge([
                     'supervisor_code' => $data['supervisor_code'] ?? null,
@@ -297,14 +324,67 @@ class StoreTargetUploadController extends Controller
                     'target' => $data['target'] ?? 0,
                     'month' => $data['month'] ?? now()->format('Y-m'),
                 ], $baseData);
-                
+
             case 'company':
                 return array_merge([
+                    'store_code' => $data['store_code'] ?? null,
+                    'mtn_code' => $data['mtn_code'] ?? null,
+                    'region_code' => $data['region_code'] ?? null,
+                    'store_name' => $data['store_name'] ?? null,
+                    'ownership' => $data['ownership'] ?? null,
+                    'dealer' => $data['dealer'] ?? null,
+                    'store_type' => $data['store_type'] ?? null,
+                    'region' => $data['region'] ?? null,
+                    'cluster' => $data['cluster'] ?? null,
                     'kpi' => $data['kpi'] ?? null,
-                    'target' => $data['target'] ?? 0,
-                    'month' => $data['month'] ?? now()->format('Y-m'),
+                    'business_unit' => $data['business_unit'] ?? null,
+                    'annual_budget' => $data['annual_budget'] ?? 0,
+                    'target_jan' => $data['target_jan'] ?? 0,
+                    'target_feb' => $data['target_feb'] ?? 0,
+                    'target_mar' => $data['target_mar'] ?? 0,
+                    'target_apr' => $data['target_apr'] ?? 0,
+                    'target_may' => $data['target_may'] ?? 0,
+                    'target_jun' => $data['target_jun'] ?? 0,
+                    'target_jul' => $data['target_jul'] ?? 0,
+                    'target_aug' => $data['target_aug'] ?? 0,
+                    'target_sep' => $data['target_sep'] ?? 0,
+                    'target_oct' => $data['target_oct'] ?? 0,
+                    'target_nov' => $data['target_nov'] ?? 0,
+                    'target_dec' => $data['target_dec'] ?? 0,
+                    'target_year' => $this->targetYear($data),
+                    'total_target' => $data['total_target'] ?? 0,
                 ], $baseData);
-                
+
+            case 'region':
+                return array_merge([
+                    'region_code' => $data['region_code'] ?? null,
+                    'mtn_code' => $data['mtn_code'] ?? null,
+                    'store_code' => $data['store_code'] ?? null,
+                    'store_name' => $data['store_name'] ?? null,
+                    'ownership' => $data['ownership'] ?? null,
+                    'dealer' => $data['dealer'] ?? null,
+                    'store_type' => $data['store_type'] ?? null,
+                    'region' => $data['region'] ?? null,
+                    'cluster' => $data['cluster'] ?? null,
+                    'kpi' => $data['kpi'] ?? null,
+                    'business_unit' => $data['business_unit'] ?? null,
+                    'annual_budget' => $data['annual_budget'] ?? 0,
+                    'target_jan' => $data['target_jan'] ?? 0,
+                    'target_feb' => $data['target_feb'] ?? 0,
+                    'target_mar' => $data['target_mar'] ?? 0,
+                    'target_apr' => $data['target_apr'] ?? 0,
+                    'target_may' => $data['target_may'] ?? 0,
+                    'target_jun' => $data['target_jun'] ?? 0,
+                    'target_jul' => $data['target_jul'] ?? 0,
+                    'target_aug' => $data['target_aug'] ?? 0,
+                    'target_sep' => $data['target_sep'] ?? 0,
+                    'target_oct' => $data['target_oct'] ?? 0,
+                    'target_nov' => $data['target_nov'] ?? 0,
+                    'target_dec' => $data['target_dec'] ?? 0,
+                    'target_year' => $this->targetYear($data),
+                    'total_target' => $data['total_target'] ?? 0,
+                ], $baseData);
+
             case 'mtn':
                 return array_merge([
                     'mtn_code' => $data['mtn_code'] ?? null,
@@ -347,7 +427,7 @@ class StoreTargetUploadController extends Controller
                     'target_type' => $data['target_type'] ?? 'monthly',
                     'quarter' => $data['quarter'] ?? null,
                 ], ['upload_batch_id' => $uploadId]);
-                
+
             default:
                 throw new \Exception('Unknown upload type: ' . $type);
         }
@@ -356,7 +436,7 @@ class StoreTargetUploadController extends Controller
     private function validateRowData($data, $type)
     {
         $requiredFields = $this->getRequiredFields($type);
-        
+
         foreach ($requiredFields as $field) {
             if ($type === 'store' && $field === 'target' && $this->hasMonthlyTarget($data)) {
                 continue;
@@ -365,21 +445,21 @@ class StoreTargetUploadController extends Controller
                 return false;
             }
         }
-        
+
         // Validate target is numeric and positive
         if (isset($data['target']) && $data['target'] !== '' && (!is_numeric($data['target']) || $data['target'] < 0)) {
             return false;
         }
 
-        // MTN benchmarks only have monthly columns (202601..202612).
-        if ($type === 'mtn' && !$this->hasMonthlyTarget($data)) {
+        // MTN/company/region benchmarks only have monthly columns (202601..202612).
+        if (in_array($type, ['mtn', 'company', 'region'], true) && !$this->hasMonthlyTarget($data)) {
             return false;
         }
 
         if ($type === 'sales_agent' && ((int) ($data['year'] ?? 0) < 2000 || (int) ($data['month'] ?? 0) < 1 || (int) ($data['month'] ?? 0) > 12)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -388,11 +468,12 @@ class StoreTargetUploadController extends Controller
         $fields = [
             'store' => ['store_code', 'target'],
             'supervisor' => ['supervisor_code', 'store_code', 'target'],
-            'company' => ['target'],
+            'company' => ['store_code', 'kpi'],
+            'region' => ['region_code', 'kpi'],
             'mtn' => ['store_code', 'kpi'],
             'sales_agent' => ['employee_code', 'store_code', 'target', 'year', 'month']
         ];
-        
+
         return $fields[$type] ?? [];
     }
 
@@ -444,10 +525,10 @@ class StoreTargetUploadController extends Controller
     }
 
     /**
-     * Turn MTN sheet values into plain numbers ("589 617" => 589617, "-" => 0)
+     * Turn MTN/company benchmark sheet values into plain numbers ("589 617" => 589617, "-" => 0)
      * and fill in the year and total when the sheet doesn't provide them.
      */
-    private function cleanMtnRow(array $data, ?int $headerYear): array
+    private function cleanBenchmarkRow(array $data, ?int $headerYear): array
     {
         $months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
         $numericFields = array_merge(['annual_budget', 'total_target'], array_map(fn ($m) => 'target_' . $m, $months));
@@ -467,7 +548,7 @@ class StoreTargetUploadController extends Controller
             $data[$field] = $value;
         }
 
-        foreach (['store_code', 'store_name', 'ownership', 'dealer', 'store_type', 'region', 'cluster', 'kpi', 'business_unit'] as $field) {
+        foreach (['region_code', 'mtn_code', 'store_code', 'store_name', 'ownership', 'dealer', 'store_type', 'region', 'cluster', 'kpi', 'business_unit'] as $field) {
             if (isset($data[$field]) && is_string($data[$field])) {
                 $data[$field] = trim($data[$field]);
             }
@@ -559,7 +640,7 @@ class StoreTargetUploadController extends Controller
                     'failed_records' => $upload->failed_records,
                 ];
             });
-        
+
         return response()->json($history);
     }
 
@@ -568,11 +649,11 @@ class StoreTargetUploadController extends Controller
         $history = StoreTargetUpload::with('uploadedBy')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
-        
+
         if (request()->ajax()) {
             return response()->json($history);
         }
-        
+
         return view('utilities.history', compact('history'));
     }
 
@@ -580,29 +661,30 @@ class StoreTargetUploadController extends Controller
     {
         $upload = StoreTargetUpload::with('uploadedBy')
             ->findOrFail($id);
-        
+
         return view('utilities.show', compact('upload'));
     }
 
     public function downloadTemplate(Request $request)
     {
         $type = $request->get('type', 'store');
-        
+
         $headers = [
-            'store' => ['store_code', 'store_name', 'kpi', 'business_unit', 'target_year', 'target_jan', 'target_feb', 'target_mar', 'target_apr', 'target_may', 'target_jun', 'target_jul', 'target_aug', 'target_sep', 'target_oct', 'target_nov', 'target_dec'],
+            'store' => ['store_code', 'mtn_code', 'region_code', 'store_name', 'kpi', 'business_unit', 'target_year', 'target_jan', 'target_feb', 'target_mar', 'target_apr', 'target_may', 'target_jun', 'target_jul', 'target_aug', 'target_sep', 'target_oct', 'target_nov', 'target_dec'],
             'supervisor' => ['supervisor_code', 'store_code', 'kpi', 'target', 'month'],
-            'company' => ['kpi', 'target', 'month'],
+            'company' => ['Mtn_Code', 'Region_Code', 'Store_Code', 'Store_Name', 'Ownership', 'Dealer', 'Store Type', 'Region', 'Cluster', 'KPI', 'Business Unit', '2026 Budget', '202601', '202602', '202603', '202604', '202605', '202606', '202607', '202608', '202609', '202610', '202611', '202612', 'Total'],
+            'region' => ['Region_Code', 'Mtn_Code', 'Store_Code', 'Store_Name', 'Ownership', 'Dealer', 'Store Type', 'Region', 'Cluster', 'KPI', 'Business Unit', '2026 Budget', '202601', '202602', '202603', '202604', '202605', '202606', '202607', '202608', '202609', '202610', '202611', '202612', 'Total'],
             'mtn' => ['Store_Code', 'Store_Name', 'Ownership', 'Dealer', 'Store Type', 'Region', 'Cluster', 'KPI', 'Business Unit', '2026 Budget', '202601', '202602', '202603', '202604', '202605', '202606', '202607', '202608', '202609', '202610', '202611', '202612', 'Total'],
             'sales_agent' => ['employee_code', 'store_code', 'target', 'year', 'month', 'quantity_target', 'revenue_target', 'customer_target', 'target_type']
         ];
-        
+
         $fileName = $type . '_template.xlsx';
         $path = storage_path('app/templates/' . $fileName);
-        
+
         if (!file_exists($path)) {
             $this->generateTemplate($path, $headers[$type] ?? []);
         }
-        
+
         return response()->download($path, $type . '_template.xlsx');
     }
 
@@ -610,7 +692,7 @@ class StoreTargetUploadController extends Controller
     {
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         // Add headers with styling
         $col = 'A';
         foreach ($headers as $header) {
@@ -619,7 +701,7 @@ class StoreTargetUploadController extends Controller
             $sheet->getStyle($col . '1')->getFont()->setBold(true);
             $col++;
         }
-        
+
         // Add example data row
         $row = 2;
         $col = 'A';
@@ -635,12 +717,12 @@ class StoreTargetUploadController extends Controller
             $sheet->setCellValue($col . $row, $exampleValue);
             $col++;
         }
-        
+
         // Create directory if it doesn't exist
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0755, true);
         }
-        
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $writer->save($path);
     }
@@ -648,23 +730,23 @@ class StoreTargetUploadController extends Controller
     public function retry($id)
     {
         $upload = StoreTargetUpload::findOrFail($id);
-        
+
         if (!$upload->isFailed()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Only failed uploads can be retried'
             ], 422);
         }
-        
+
         try {
             $filePath = storage_path('app/public/' . $upload->file_path);
-            
+
             if (!file_exists($filePath)) {
                 throw new \Exception('File not found');
             }
-            
+
             $file = new \Illuminate\Http\UploadedFile($filePath, $upload->original_filename);
-            
+
             // Reset the upload record
             $upload->update([
                 'status' => StoreTargetUpload::STATUS_PENDING,
@@ -676,19 +758,19 @@ class StoreTargetUploadController extends Controller
                 'processing_started_at' => null,
                 'processing_completed_at' => null,
             ]);
-            
+
             // Process again
             $result = $this->processFile($upload, $file, $upload->type);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'File reprocessed successfully',
                 'data' => $result
             ]);
-            
+
         } catch (\Exception $e) {
             $upload->failProcessing($e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reprocess: ' . $e->getMessage()
@@ -700,22 +782,22 @@ class StoreTargetUploadController extends Controller
     {
         try {
             $upload = StoreTargetUpload::findOrFail($id);
-            
+
             // Delete associated records based on type
             $this->deleteAssociatedRecords($upload);
-            
+
             // Delete physical file
             if ($upload->file_path && Storage::disk('public')->exists($upload->file_path)) {
                 Storage::disk('public')->delete($upload->file_path);
             }
-            
+
             $upload->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Upload record deleted successfully'
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -735,6 +817,9 @@ class StoreTargetUploadController extends Controller
                 break;
             case 'company':
                 CompanyTarget::where('upload_batch_id', $upload->id)->delete();
+                break;
+            case 'region':
+                RegionTarget::where('upload_batch_id', $upload->id)->delete();
                 break;
             case 'mtn':
                 MtnTarget::where('upload_batch_id', $upload->id)->delete();
@@ -761,7 +846,7 @@ class StoreTargetUploadController extends Controller
                 ->limit(5)
                 ->get()
         ];
-        
+
         return response()->json($stats);
     }
 }

@@ -11,6 +11,8 @@ class StoreTarget extends Model
 
     protected $fillable = [
         'store_code',
+        'mtn_code',
+        'region_code',
         'store_name',
         'ownership',
         'dealer',
@@ -47,5 +49,29 @@ class StoreTarget extends Model
     public function uploadBatch(): BelongsTo
     {
         return $this->belongsTo(StoreTargetUpload::class, 'upload_batch_id');
+    }
+
+    /**
+     * Region target this store rolls up to, matched on region_code.
+     */
+    public function regionTarget()
+    {
+        return $this->belongsTo(RegionTarget::class, 'region_code', 'region_code');
+    }
+
+    /**
+     * Supervisor targets recorded for this store.
+     */
+    public function supervisorTargets()
+    {
+        return $this->hasMany(SupervisorTarget::class, 'store_code', 'store_code');
+    }
+
+    /**
+     * Sales-agent targets recorded for this store.
+     */
+    public function targets()
+    {
+        return $this->hasMany(Target::class, 'store_code', 'store_code');
     }
 }

@@ -48,4 +48,12 @@ class MtnTarget extends Model
     {
         return $this->belongsTo(StoreTargetUpload::class, 'upload_batch_id');
     }
+
+    /**
+     * Dealer/company target rows sharing this mtn_code.
+     */
+    public function companyTargets()
+    {
+        return $this->hasMany(CompanyTarget::class, 'mtn_code', 'mtn_code');
+    }
 }
