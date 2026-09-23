@@ -40,6 +40,12 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('kpi.statistics') }}" class="dropdown-toggle no-arrow">
+                        <span class="micon"><i class="fas fa-chart-pie"></i></span><span class="mtext">KPI Statistics</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="" class="dropdown-toggle no-arrow">
                         <span class="micon"><i class="material-icons">bed</i></span><span class="mtext">Leave Type</span>
                     </a>

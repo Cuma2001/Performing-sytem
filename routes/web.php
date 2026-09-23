@@ -11,6 +11,7 @@ use App\Http\Controllers\KPIController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\KpiStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,6 +28,12 @@ Route::get('/', function () {
 | Dashboard (Protected)
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth'])->group(function () {
+    Route::get('/kpi-statistics', [KpiStatisticsController::class, 'index'])->name('kpi.statistics');
+    Route::get('/kpi-statistics/data', [KpiStatisticsController::class, 'data'])->name('kpi.statistics.data');
+    Route::get('/kpi-statistics/export', [KpiStatisticsController::class, 'export'])->name('kpi.statistics.export');
+});
+
 Route::middleware(['auth'])->group(function () {
     
     // Main Dashboard (routes to role-specific view)

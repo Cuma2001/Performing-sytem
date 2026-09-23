@@ -721,6 +721,7 @@
                 'employees.show' => ['Employee Profile', 'Review role, store, and status'],
                 'kpi.distribution' => ['KPI Distribution', 'Review KPI allocation and coverage'],
                 'kpi.upload' => ['KPI Upload', 'Import and manage KPI data'],
+                'kpi.statistics' => ['KPI Performance Dashboard', 'Company performance, KPI achievement and store analytics'],
                 'reports.index' => ['Reports', 'View summaries and reporting outputs'],
             ];
 
@@ -778,6 +779,12 @@
                     <a href="{{ route('kpi.upload') }}" class="nav-link {{ request()->routeIs('kpi.upload') ? 'active' : '' }}">
                         <i class="fas fa-upload"></i>
                         <span>KPI Upload</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('kpi.statistics') }}" class="nav-link {{ request()->routeIs('kpi.statistics') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>KPI Statistics</span>
                     </a>
                 </li>
             @endif
