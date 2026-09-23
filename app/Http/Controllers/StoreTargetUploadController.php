@@ -119,11 +119,16 @@ class StoreTargetUploadController extends Controller
             
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getPathname());
             $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
-            
-            $header = array_map(function ($value) {
-                return Str::snake(trim((string) $value));
+            // MTN sheets use number formats ("589 617", "-" for zero), so read raw cell values instead.
+            $rows = $worksheet->toArray(null, true, $type !== 'mtn');
+
+            $header = array_map(function ($value) use ($type) {
+                $value = trim((string) $value);
+
+                // Lowercase first so headers like "KPI" don't become "k_p_i".
+                return Str::snake($type === 'mtn' ? strtolower($value) : $value);
             }, array_shift($rows));
+            $headerYear = $this->headerYear($header);
             if (in_array($type, ['store', 'mtn'], true)) {
                 $header = $this->normalizeStoreHeaders($header);
             }
@@ -139,6 +144,9 @@ class StoreTargetUploadController extends Controller
                     $data = array_combine($header, array_pad($row, count($header), null));
                     if ($type === 'store' && empty($data['store_code'])) {
                         $data['store_code'] = $this->fallbackStoreCode($data);
+                    }
+                    if ($type === 'mtn') {
+                        $data = $this->cleanMtnRow($data, $headerYear);
                     }
                     
                     // Validate row data
@@ -202,7 +210,12 @@ class StoreTargetUploadController extends Controller
                 break;
             case 'mtn':
                 MtnTarget::updateOrCreate(
-                    ['mtn_code' => $data['mtn_code'], 'store_code' => $data['store_code'], 'month' => $data['month']],
+                    [
+                        'store_code' => $data['store_code'],
+                        'kpi' => $data['kpi'],
+                        'business_unit' => $data['business_unit'],
+                        'target_year' => $data['target_year'],
+                    ],
                     $data
                 );
                 break;
@@ -296,6 +309,7 @@ class StoreTargetUploadController extends Controller
                 return array_merge([
                     'mtn_code' => $data['mtn_code'] ?? null,
                     'store_code' => $data['store_code'] ?? null,
+                    'store_name' => $data['store_name'] ?? null,
                     'ownership' => $data['ownership'] ?? null,
                     'dealer' => $data['dealer'] ?? null,
                     'store_type' => $data['store_type'] ?? null,
@@ -304,7 +318,6 @@ class StoreTargetUploadController extends Controller
                     'kpi' => $data['kpi'] ?? null,
                     'business_unit' => $data['business_unit'] ?? null,
                     'annual_budget' => $data['annual_budget'] ?? 0,
-                    'target' => $data['target'] ?? 0,
                     'target_jan' => $data['target_jan'] ?? 0,
                     'target_feb' => $data['target_feb'] ?? 0,
                     'target_mar' => $data['target_mar'] ?? 0,
@@ -319,7 +332,6 @@ class StoreTargetUploadController extends Controller
                     'target_dec' => $data['target_dec'] ?? 0,
                     'target_year' => $this->targetYear($data),
                     'total_target' => $data['total_target'] ?? 0,
-                    'month' => $data['month'] ?? now()->format('Y-m'),
                 ], $baseData);
 
             case 'sales_agent':
@@ -346,7 +358,7 @@ class StoreTargetUploadController extends Controller
         $requiredFields = $this->getRequiredFields($type);
         
         foreach ($requiredFields as $field) {
-            if (in_array($type, ['store', 'mtn'], true) && $field === 'target' && $this->hasMonthlyTarget($data)) {
+            if ($type === 'store' && $field === 'target' && $this->hasMonthlyTarget($data)) {
                 continue;
             }
             if (empty($data[$field] ?? null)) {
@@ -356,6 +368,11 @@ class StoreTargetUploadController extends Controller
         
         // Validate target is numeric and positive
         if (isset($data['target']) && $data['target'] !== '' && (!is_numeric($data['target']) || $data['target'] < 0)) {
+            return false;
+        }
+
+        // MTN benchmarks only have monthly columns (202601..202612).
+        if ($type === 'mtn' && !$this->hasMonthlyTarget($data)) {
             return false;
         }
 
@@ -372,7 +389,7 @@ class StoreTargetUploadController extends Controller
             'store' => ['store_code', 'target'],
             'supervisor' => ['supervisor_code', 'store_code', 'target'],
             'company' => ['target'],
-            'mtn' => ['mtn_code', 'store_code', 'target'],
+            'mtn' => ['store_code', 'kpi'],
             'sales_agent' => ['employee_code', 'store_code', 'target', 'year', 'month']
         ];
         
@@ -403,8 +420,68 @@ class StoreTargetUploadController extends Controller
                 return 'annual_budget';
             }
 
+            // "202601".."202612" (YYYYMM) monthly target columns.
+            if (preg_match('/^20\\d{2}(0[1-9]|1[0-2])$/', $header, $matches)) {
+                return 'target_' . strtolower(date('M', mktime(0, 0, 0, (int) $matches[1], 1)));
+            }
+
             return $header;
         }, $headers);
+    }
+
+    /**
+     * Target year taken from headers such as "2026_budget" or "202601".
+     */
+    private function headerYear(array $headers): ?int
+    {
+        foreach ($headers as $header) {
+            if (preg_match('/^(20\\d{2})(?:_budget|0[1-9]|1[0-2])$/', $header, $matches)) {
+                return (int) $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Turn MTN sheet values into plain numbers ("589 617" => 589617, "-" => 0)
+     * and fill in the year and total when the sheet doesn't provide them.
+     */
+    private function cleanMtnRow(array $data, ?int $headerYear): array
+    {
+        $months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        $numericFields = array_merge(['annual_budget', 'total_target'], array_map(fn ($m) => 'target_' . $m, $months));
+
+        foreach ($numericFields as $field) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+
+            $value = $data[$field];
+            if (is_string($value)) {
+                $value = str_replace([' ', "\u{00A0}", ','], '', trim($value));
+            }
+            if ($value === null || $value === '' || $value === '-') {
+                $value = 0;
+            }
+            $data[$field] = $value;
+        }
+
+        foreach (['store_code', 'store_name', 'ownership', 'dealer', 'store_type', 'region', 'cluster', 'kpi', 'business_unit'] as $field) {
+            if (isset($data[$field]) && is_string($data[$field])) {
+                $data[$field] = trim($data[$field]);
+            }
+        }
+
+        if (empty($data['target_year']) && $headerYear) {
+            $data['target_year'] = $headerYear;
+        }
+
+        if (empty($data['total_target']) && $this->hasMonthlyTarget($data)) {
+            $data['total_target'] = array_sum(array_map(fn ($m) => (float) ($data['target_' . $m] ?? 0), $months));
+        }
+
+        return $data;
     }
 
     private function fallbackStoreCode(array $data): string
@@ -515,7 +592,7 @@ class StoreTargetUploadController extends Controller
             'store' => ['store_code', 'store_name', 'kpi', 'business_unit', 'target_year', 'target_jan', 'target_feb', 'target_mar', 'target_apr', 'target_may', 'target_jun', 'target_jul', 'target_aug', 'target_sep', 'target_oct', 'target_nov', 'target_dec'],
             'supervisor' => ['supervisor_code', 'store_code', 'kpi', 'target', 'month'],
             'company' => ['kpi', 'target', 'month'],
-            'mtn' => ['mtn_code', 'store_code', 'kpi', 'target', 'month'],
+            'mtn' => ['Store_Code', 'Store_Name', 'Ownership', 'Dealer', 'Store Type', 'Region', 'Cluster', 'KPI', 'Business Unit', '2026 Budget', '202601', '202602', '202603', '202604', '202605', '202606', '202607', '202608', '202609', '202610', '202611', '202612', 'Total'],
             'sales_agent' => ['employee_code', 'store_code', 'target', 'year', 'month', 'quantity_target', 'revenue_target', 'customer_target', 'target_type']
         ];
         
